@@ -16,8 +16,8 @@ Gui_init() {
 	Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#3_wndId, Gui#4
 	Global Gui_a, Gui_aF, Gui_bar, Gui_barH, Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr, Gui_inA, Gui_statusBar, Gui_statusBarH, Gui_wndHidden, Gui_wndId, Gui_wndResize
 
-	IfExist %A_ScriptDir%\images\%NAME%.ico
-		Menu, Tray, Icon, %A_ScriptDir%\images\%NAME%.ico
+	IfExist %A_ScriptDir%\icon.ico
+		Menu, Tray, Icon, %A_ScriptDir%\icon.ico
 	If Config_reloadTime {
 		Menu, Tray, Icon
 		Menu, Tray, NoStandard
