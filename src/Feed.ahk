@@ -1,26 +1,12 @@
-/**
- *	owl-u - feed reader
- *	Copyright (c) 2010-2011 joten
- *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- *	@version 0.2.0.02 (02.12.2011)
- */
+/* Title:   owl-u -- Feed Reader
+   Version: 0.3.0
+   Author:  joten
+   License: GNU General Public License version 3 (GPLv3)
+*/
 
 Feed_init(i) {
 	Local filename, j, k, var, val
-	
+
 	If (i = Config_feedCount + 1) {
 		j := 0
 		Loop, % Config_feedCount {
@@ -52,7 +38,7 @@ Feed_init(i) {
 		filename .= "\entries.ini"
 		If FileExist(filename)
 			Loop, READ, %filename%
-				If (SubStr(A_LoopReadLine, 1, 2) = "e#" Or SubStr(A_LoopReadLine, 1, 6) = "eCount" Or SubStr(A_LoopReadLine, 1, 9) = "timestamp" 
+				If (SubStr(A_LoopReadLine, 1, 2) = "e#" Or SubStr(A_LoopReadLine, 1, 6) = "eCount" Or SubStr(A_LoopReadLine, 1, 9) = "timestamp"
 				Or SubStr(A_LoopReadLine, 1, 12) = "unreadECount") {
 					var := SubStr(A_LoopReadLine, 1, InStr(A_LoopReadLine, "=") - 1)
 					val := SubStr(A_LoopReadLine, InStr(A_LoopReadLine, "=") + 1)
@@ -70,13 +56,13 @@ Feed_init(i) {
 
 Feed_cleanup(i) {
 	Local filename, j, k
-	
+
 	StringTrimLeft, Feed#%i%_delete, Feed#%i%_delete, 1
 	StringTrimRight, Feed#%i%_delete, Feed#%i%_delete, 1
 	Sort, Feed#%i%_delete, NRD`;
 	Loop, PARSE, Feed#%i%_delete, `;
 	{
-		filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)		
+		filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)
 		filename := A_WorkingDir "\cache\" Config_feed#%i%_cacheId "\" filename
 		FileMove, %filename%.htm, %filename%.tmp.htm
 		Loop, % Feed#%i%_eCount - A_LoopField {
@@ -123,7 +109,7 @@ Feed_decodeHtmlChar(text) {
 			StringSplit, char, A_LoopField, `;
 			StringReplace, text, text, &%char1%`;, %char2%, All
 		}
-		
+
 		Loop, 256 {
 			StringReplace, text, text, % "&#" A_Index - 1 ";", % Chr(A_Index - 1), All
 			If (A_Index < 11)
@@ -138,13 +124,13 @@ Feed_decodeHtmlChar(text) {
 		}
 		StringReplace, text, text, &amp`;, &, All
 	}
-	
+
 	Return, text
 }
 
 Feed_downloadArticle(i, j) {
 	Local filename, text, url
-	
+
 	url := Feed#%i%_e#%j%_link
 	If Not (SubStr(url, 1, 6) = "mua://") {
 		filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
@@ -164,10 +150,10 @@ Feed_downloadArticle(i, j) {
 
 Feed_getCacheId(string, replacement = "") {
 	If replacement
-		StringReplace, string, string, %replacement%, 
-	StringReplace, string, string, http://, 
+		StringReplace, string, string, %replacement%,
+	StringReplace, string, string, http://,
 	string := RegExReplace(string, "[/\\:\*\?<>|\. @]+", "_")
-	
+
 	Return, string
 }
 
@@ -184,16 +170,16 @@ Feed_getTimestamp(str) {
 	f = %A_FormatFloat%
 	SetFormat, Float, 02.0
 	d := (d3 ? (StrLen(d3) = 2 ? 20 : "") . d3 : A_YYYY)
-		. ((d2 := d2 + 0 ? d2 : (InStr(e2, SubStr(d2, 1, 3)) - 40) // 4 + 1.0) > 0 ? d2 + 0.0 : A_MM) 
-		. ((d1 += 0.0) ? d1 : A_DD) 
-		. (t1 := t1 + 0.0 ? t1 + (t1 = 12 ? t4 = "am" ? -12.0 : 0.0 : (t4 = "pm" && t1 < 12) ? 12.0 : 0.0) : 00) 
-		. (t2 := t2 + 0.0 ? t2 : 00) 
+		. ((d2 := d2 + 0 ? d2 : (InStr(e2, SubStr(d2, 1, 3)) - 40) // 4 + 1.0) > 0 ? d2 + 0.0 : A_MM)
+		. ((d1 += 0.0) ? d1 : A_DD)
+		. (t1 := t1 + 0.0 ? t1 + (t1 = 12 ? t4 = "am" ? -12.0 : 0.0 : (t4 = "pm" && t1 < 12) ? 12.0 : 0.0) : 00)
+		. (t2 := t2 + 0.0 ? t2 : 00)
 		. (t3 := t3 + 0.0 ? t3 : 00)
 	SetFormat, Float, %f%
-	
+
 	d -= 19700101000000,seconds
 	; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
-	
+
 	d := d + (t6 > 0 ? (t5 . (t6 * 3600)) + 0 : 0)
 	Return, d
 }
@@ -201,7 +187,7 @@ Feed_getTimestamp(str) {
 
 Feed_parseEntry(i, data) {
 	Local filter, id, j, nCount, updated, workingDir
-	
+
 	If Config_feed#%i%_htmlSource {
 		StringReplace, data, data, `r`n, , All
 		StringReplace, data, data, `n, , All
@@ -214,7 +200,7 @@ Feed_parseEntry(i, data) {
 				data := RegExReplace(data, "<object.+?</object>")
 				data := RegExReplace(data, "<script.+?</script>")
 				data := RegExReplace(data, "<style.+?</style>")
-				
+
 				data := RegExReplace(data, "</?div.*?>")
 				data := RegExReplace(data, "<img .+?>")
 				data := RegExReplace(data, "<!--.+?-->")
@@ -224,7 +210,7 @@ Feed_parseEntry(i, data) {
 			Loop, % Config_feed#%i%_needleRegExCount
 				data := RegExReplace(data, Config_feed#%i%_needleRegEx#%A_Index%, Config_feed#%i%_replacement#%A_Index%)
 	}
-	
+
 	Feed#N%i%_eCount := 0
 	FormatTime, updated
 	If (SubStr(Config_feed#%i%_xmlUrl, 1, 6) = "mua://") {
@@ -255,14 +241,14 @@ Feed_parseEntry(i, data) {
 			Feed#N%i%_e#1_updated := updated
 		}
 	}
-	
+
 	Feed#N%i%_timestamp := Feed_getTimestamp(updated)
 	; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
 }
 
 Feed_parseEntries(i, data) {
 	Local entryTag, feedTag, link, n = 0, pos1, pos2, pos3, pos4, summary, summaryTag, timestamp, title, updated, updatedTag
-	
+
 	If InStr(data, "</feed>") And InStr(data, "</entry>") {
 		feedTag    := "feed"
 		entryTag   := "entry"
@@ -300,7 +286,7 @@ Feed_parseEntries(i, data) {
 						link := SubStr(data, pos2, pos3 - pos2)
 					}
 				}
-				
+
 				pos2 := InStr(data, "<" summaryTag, False, pos1)
 				pos3 := InStr(data, "</" summaryTag ">", False, pos2)
 				If pos2 And pos3 And (pos3 < pos4) {
@@ -311,7 +297,7 @@ Feed_parseEntries(i, data) {
 					summary := RegExReplace(summary, "<img [^>]+>")
 					StringReplace, summary, summary, ]]>, , All
 				}
-				
+
 				pos2 := InStr(data, "<" updatedTag, False, pos1)
 				pos3 := InStr(data, "</" updatedTag ">", False, pos2)
 				If pos2 And pos3 And (pos3 < pos4) {
@@ -322,7 +308,7 @@ Feed_parseEntries(i, data) {
 					updated := RegExReplace(updated, "\R.*")
 					updated := RegExReplace(updated, "<.*")
 				}
-				
+
 				timestamp := Feed_getTimestamp(updated)
 				If (timestamp <= Feed#%i%_timestamp Or link = Feed#%i%_e#1_link)
 					Break
@@ -334,14 +320,14 @@ Feed_parseEntries(i, data) {
 					Feed#N%i%_e#%n%_summary := summary
 					Feed#N%i%_e#%n%_updated := updated
 				}
-				
+
 				pos2 := InStr(data, "<author", False, pos1)
 				pos3 := InStr(data, "</author>", False, pos2)
 				If pos2 And pos3 And (pos3 < pos4) {
 					pos2 := InStr(data, ">", False, pos2) + 1
 					Feed#N%i%_e#%n%_author := SubStr(data, pos2, pos3 - pos2)
 				}
-				
+
 				pos2 := InStr(data, "<title", False, pos1)
 				pos3 := InStr(data, "</title>", False, pos2)
 				If pos2 And pos3 And (pos3 < pos4) {
@@ -351,20 +337,20 @@ Feed_parseEntries(i, data) {
 					StringReplace, title, title, ]]>, , All
 					Feed#N%i%_e#%n%_title := Feed_decodeHtmlChar(title)
 				}
-				
+
 				pos1 := pos4
 			} Else
 				Break
 		}
-	
+
 	Feed#N%i%_eCount := n
 }
 
 Feed_reload(i) {
 	Local d = 0, data, encoding, filename, j, k, m = 0, muaFilename, n = 0, p, statusStr, u = 0, url
-	
+
 	GuiControlGet, statusStr, , Gui#4
-	
+
 	SB_SetText(statusStr " downloading")
 	url := Config_feed#%i%_xmlUrl
 	filename := A_WorkingDir "\cache\" i "_" A_Now A_MSec ".tmp.xml"
@@ -386,9 +372,9 @@ Feed_reload(i) {
 		FileRead, data, *P28591 %filename%
 	Else If (encoding = "iso-8859-15")
 		FileRead, data, *P28605 %filename%
-	
+
 	SB_SetText(statusStr)
-	
+
 	If data {
 		If Config_feed#%i%_singleEntry
 			Feed_parseEntry(i, data)
@@ -446,25 +432,25 @@ Feed_reload(i) {
 		Feed#%i%_timestamp := Feed#N%i%_timestamp
 		Feed#%i%_eCount := n + m + d
 		Feed#%i%_unreadECount := u + n
-		
-		Feed#N%i%_eCount := 
-		Feed#N%i%_timestamp := 
-		
+
+		Feed#N%i%_eCount :=
+		Feed#N%i%_timestamp :=
+
 		Return, True
 	} Else {
 		Config_feed#%i%_title .= " [ERROR!]"
 		Feed#%i%_unreadECount := "?"
-		
+
 		Return, False
 	}
 }
 
 Feed_save(i) {
 	Local filename, text
-	
+
 	filename := A_WorkingDir "\cache\" Config_feed#%i%_cacheId "\entries.ini"
 	text := "; " NAME " - feed reader`n; @version " VERSION "`n; " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
-	
+
 	text .= "timestamp=" Feed#%i%_timestamp "`n"
 	text .= "eCount=" Feed#%i%_eCount "`n"
 	text .= "unreadECount=" Feed#%i%_unreadECount "`n`n"
@@ -477,7 +463,7 @@ Feed_save(i) {
 		text .= "e#" A_Index "_title=" Feed#%i%_e#%A_Index%_title "`n"
 		text .= "e#" A_Index "_updated=" Feed#%i%_e#%A_Index%_updated "`n"
 	}
-	
+
 	FileDelete, %filename%
 	FileAppend, %text%, %filename%
 }

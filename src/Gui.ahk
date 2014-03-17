@@ -1,22 +1,8 @@
-/**
- *	owl-u - feed reader
- *	Copyright (c) 2010-2011 joten
- *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- *	@version 0.2.0.02 (19.09.2011)
- */
+/* Title:   owl-u -- Feed Reader
+   Version: 0.3.0
+   Author:  joten
+   License: GNU General Public License version 3 (GPLv3)
+*/
 
 /**
  *  Gui#1: Title bar ==================================================================================================================
@@ -29,7 +15,7 @@ Gui_init() {
 	Global Config_fontName, Config_fontSize, Config_feedCount, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth, NAME
 	Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#3_wndId, Gui#4
 	Global Gui_a, Gui_aF, Gui_bar, Gui_barH, Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr, Gui_inA, Gui_statusBar, Gui_statusBarH, Gui_wndHidden, Gui_wndId, Gui_wndResize
-	
+
 	IfExist %A_ScriptDir%\images\%NAME%.ico
 		Menu, Tray, Icon, %A_ScriptDir%\images\%NAME%.ico
 	If Config_reloadTime {
@@ -37,7 +23,7 @@ Gui_init() {
 		Menu, Tray, NoStandard
 		Menu, Tray, Add, Hide/Show window, Gui_hideShowWindow
 		Menu, Tray, Add, Reload feeds, Main_reloadFeeds
-		Menu, Tray, Add, 
+		Menu, Tray, Add,
 		Menu, Tray, Add, Quit, Gui_exitApp
 		Menu, Tray, Default, Hide/Show window
 	}
@@ -48,9 +34,9 @@ Gui_init() {
 	Gui_wndHidden := False
 	Gui_wndId := WinExist()
 	Gui_wndResize := True
-	
+
 	Gui, Font, s%Config_fontSize%, %Config_fontName%
-	
+
 	wndTitle := "OWLU_GUI_99"
 	Gui, 99: Default
 	Gui, Font, s%Config_fontSize%, %Config_fontName%
@@ -60,10 +46,10 @@ Gui_init() {
 	GuiControlGet, Gui_statusBar, Pos
 	Gui, Destroy
 	Gui, 1: Default
-	
+
 	h := Config_windowHeight - Gui_barH - Gui_statusBarH
 	w := Config_windowWidth - 4
-	
+
 	If FileExist(Config_iniFilePath)
 		Gui_a := 1
 	Else
@@ -80,11 +66,11 @@ Gui_init() {
 	Loop, % StrLen(Config_maxItems)
 		Gui_eCountStr1 .= " "
 	StringTrimRight, Gui_eCountStr1, Gui_eCountStr1, 1
-	
-	Gui, Add, Text, W%w% H%h% X4 Y0 vGui#1, 
+
+	Gui, Add, Text, W%w% H%h% X4 Y0 vGui#1,
 	If Not Gui_a {
 		Gui, Add, ListBox, +0x100 AltSubmit Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
-		
+
 		StringReplace, workingDir, A_WorkingDir, \, /, All
 		Gui#3_wndId := Atl_AxCreateContainer(Gui_wndId, 0, Gui_barH, Config_windowWidth, h, "Shell.Explorer")
 		Gui#3 := Atl_AxGetControl(Gui#3_wndId)			; get the iwebbrowser2 interface pointer
@@ -93,23 +79,23 @@ Gui_init() {
 		; tank: COM Object Reference [AutoHotkey_L] (http://www.autohotkey.com/forum/topic61509-90.html)
 	} Else {
 		Gui, Add, ListBox, +0x100 AltSubmit W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
-		
+
 		Gui#3_wndId := Atl_AxCreateContainer(Gui_wndId, 0, Gui_barH, Config_windowWidth, h, "Shell.Explorer")
 		Gui#3 := Atl_AxGetControl(Gui#3_wndId)			; get the iwebbrowser2 interface pointer
 		Gui#3.silent := True							; disable annoying script errors from the page
 		Gui#3.Navigate("about:blank")
 		; tank: COM Object Reference [AutoHotkey_L] (http://www.autohotkey.com/forum/topic61509-90.html)
-		
+
 		WinHide, % "ahk_id " Gui#3_wndId
 	}
 	Gui, Add, StatusBar, vGui#4, Initializing ...
-	
+
 	Gui, Show, AutoSize, %NAME%
 }
 
 Gui_initFeed(i) {
 	Global
-	
+
 	Gui_f#%i%_htmlSource := Config_feed#%i%_htmlSource
 	Gui_loadEntryList(i)
 }
@@ -124,7 +110,7 @@ Return
 
 Gui_createHtAbstract() {
 	Local body, ht
-	
+
 	FileRead, ht, % A_WorkingDir "\html\template.htm"
 	body := "<table>`n"
 	body .= "<tr><th class=""abstract"">Title</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_title "</td></tr>`n"
@@ -134,7 +120,7 @@ Gui_createHtAbstract() {
 		body .= "<tr><th class=""abstract"">From</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_author "</td></tr>`n"
 	body .= "</table>`n`n"
 	body .= "<p><div class=""fixed-width"">`n`t" Feed#%Gui_aF%_e#%Gui_aE%_summary "</div></p>`n"
-	
+
 	StringReplace, ht, ht, <!-- charset -->, utf-8
 	StringReplace, ht, ht, <!-- body -->, %body%
 	FileDelete, % A_WorkingDir "\html\abstract.tmp.htm"
@@ -143,7 +129,7 @@ Gui_createHtAbstract() {
 
 Gui_createHtArticle() {
 	Local body, charset, e, f, filename, ht, p, url
-	
+
 	If (Gui_aF = Config_feedCount + 1) {
 		f := Feed#%Gui_aF%_e#%Gui_aE%_f
 		e := Feed#%Gui_aF%_e#%Gui_aE%_e
@@ -161,7 +147,7 @@ Gui_createHtArticle() {
 		If Not FileExist(filename)
 			UrlDownloadToFile, %url%, %filename%
 	}
-	
+
 	If Gui_f#%f%_htmlSource {
 		FileRead, ht, %filename%
 		StringReplace, ht, ht, `r`n, , All
@@ -181,7 +167,7 @@ Gui_createHtArticle() {
 				body := RegExReplace(body, "<object.+?</object>")
 				body := RegExReplace(body, "<script.+?</script>")
 				body := RegExReplace(body, "<style.+?</style>")
-				
+
 				body := RegExReplace(body, "</?div[^>]*>")
 				body := RegExReplace(body, "<img [^>]+>")
 				body := RegExReplace(body, "<!--.+?-->")
@@ -199,7 +185,7 @@ Gui_createHtArticle() {
 				ht := RegExReplace(ht, Config_feed#%f%_needleRegEx#%A_Index%, Config_feed#%f%_replacement#%A_Index%)
 		FileDelete, % A_WorkingDir "\html\article.tmp.htm"
 		FileAppend, %ht%, % A_WorkingDir "\html\article.tmp.htm"
-		
+
 		Return, A_WorkingDir "\html\article.tmp.htm"
 	} Else
 		Return, url
@@ -254,7 +240,7 @@ Return
 
 Gui_loadEntryList(i) {
 	Local title
-	
+
 	Gui_f#%i%_eLs := ""
 	Loop, % Feed#%i%_eCount {
 		StringReplace, title, Feed#%i%_e#%A_Index%_title, |, ¦, All
@@ -266,16 +252,16 @@ Gui_loadEntryList(i) {
 
 Gui_navigate(d) {
 	Local eCount, fLs, i, text, unreadECount, workingDir
-	
+
 	If Gui_wndResize {
 		Gui_resize()
 		Gui_wndResize := False
 	}
-	
+
 	StringReplace, workingDir, A_WorkingDir, \, /, All
 	If (Gui_a = 4 And d = "back" And Not Gui#3.LocationURL = Feed#%Gui_aF%_e#%Gui_aE%_link) {
-		If Not (Gui#3.LocationURL = "file:///" workingDir "/html/article.tmp.htm" 
-			Or Gui#3.LocationURL = "file:///" workingDir "/html/loading.htm" 
+		If Not (Gui#3.LocationURL = "file:///" workingDir "/html/article.tmp.htm"
+			Or Gui#3.LocationURL = "file:///" workingDir "/html/loading.htm"
 			Or Gui#3.LocationURL = "file:///" workingDir "/html/quick_help.htm") {
 			Gui#3.GoBack()
 			If (Gui#3.LocationURL = "file:///" workingDir "/html/loading.htm")
@@ -289,7 +275,7 @@ Gui_navigate(d) {
 		d := -Gui_a
 	If (Gui_a = 4 And d = -1)
 		d = -2
-	
+
 	If d {
 		If (Gui_a = 1 And d > 0) {
 			GuiControlGet, Gui_aF, , Gui#2
@@ -299,13 +285,13 @@ Gui_navigate(d) {
 		If (Gui_a = 2 And d > 0) Or ((Gui_a = 1 Or Gui_a = 2) And Gui_a + d = 0) {
 			GuiControl, Disable, Gui#2
 			GuiControl, Hide, Gui#2
-			
+
 			WinShow, % "ahk_id " Gui#3_wndId
 			ControlFocus, Internet Explorer_Server1, % "ahk_id " Gui#3_wndId
 		} Else If (Gui_a > 2 And (d = -1 Or d = -2)) Or (Gui_a = 0 And (Gui_inA = 1 Or Gui_inA = 2)) {
 			WinHide, % "ahk_id " Gui#3_wndId
 			Gui#3.Navigate("about:blank")
-			
+
 			GuiControl, Show, Gui#2
 			GuiControl, Enable, Gui#2
 			GuiControl, Focus, Gui#2
@@ -321,7 +307,7 @@ Gui_navigate(d) {
 			Gui_a += d
 		}
 	}
-	
+
 	If (Gui_a = 1) {
 		Loop, % Config_feedCount {
 			eCount += Feed#%A_Index%_eCount
@@ -376,7 +362,7 @@ Gui_navigate(d) {
 
 Gui_openArticle() {
 	Global
-	
+
 	If (Gui_a > 1) {
 		If (Gui_a = 2)
 			GuiControlGet, Gui_aE, , Gui#2
@@ -389,7 +375,7 @@ Gui_openArticle() {
 
 Gui_resize(w = 0, h = 0) {
 	Global Gui#1, Gui#2, Gui#3, Gui#3_wndId, Gui_barH, Gui_statusBarH, Gui_wndId
-	
+
 	If (w = 0 Or h = 0) {
 		Sleep, 250
 		WinGetPos, x, y, w, h, ahk_id %Gui_wndId%
@@ -406,7 +392,7 @@ Gui_resize(w = 0, h = 0) {
 
 Gui_showUnreadEntry(d) {
 	Local a, b, eStr, i, text
-	
+
 	If (Gui_a > 2) {
 		If (Feed#%Gui_aF%_unreadECount > 0) {
 			a := InStr(Gui_f#%Gui_aF%_eLs, "|" SubStr(Gui_eCountStr1 Gui_aE, -StrLen(Config_maxItems) + 1) "  ")
@@ -422,7 +408,7 @@ Gui_showUnreadEntry(d) {
 			}
 			If (b > 0)
 				i := SubStr(eStr, b - StrLen(Config_maxItems), StrLen(Config_maxItems))
-			
+
 			If (i > 0) {
 				Gui_aE := i + 0
 				text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" Feed#%Gui_aF%_eCount "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
@@ -443,7 +429,7 @@ Return
 
 Gui_toggleSourceView() {
 	Global
-	
+
 	If (Gui_a = 4) {
 		If (Gui_aF = Config_feedCount + 1)
 			f := Feed#%Gui_aF%_e#%Gui_aE%_f

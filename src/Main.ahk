@@ -1,25 +1,24 @@
-/**
- *	owl-u - feed reader
- *	Copyright (c) 2010-2011 joten
- *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- *	@version 0.2.0.02 (01.10.2011)
- */
+/* Title:   owl-u -- Feed Reader
+   Version: 0.3.0
+   Author:  joten
+   License: GNU General Public License version 3 (GPLv3)
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 NAME	:= "owl-u"
-VERSION := "0.2.0"
+VERSION := "0.3.0"
 
 ; script settings
 FileEncoding, UTF-8
@@ -74,7 +73,7 @@ ExitApp
 
 Main_download() {
 	Local e, f
-	
+
 	If (Gui_a = 1) {
 		GuiControlGet, Gui_aF, , Gui#2
 		MsgBox, 8225, %NAME% %VERSION% - Download articles, % "Download all articles from """ Config_feed#%Gui_aF%_title """?"
@@ -108,7 +107,7 @@ Main_download() {
 
 Main_importFeedList() {
 	Global Gui_a
-	
+
 	If (Gui_a < 2) {
 		Config_importFeedList()
 		If Not Gui_a
@@ -120,9 +119,9 @@ Main_importFeedList() {
 
 Main_markEntry(f, e, flag) {
 	Local pos, replace, search
-	
+
 	Feed#%f%_e#%e%_flag := flag
-	
+
 	search  := "|" SubStr(Gui_eCountStr1 e, -StrLen(Config_maxItems) + 1)
 	pos     := InStr(Gui_f#%f%_eLs, search)
 	replace := SubStr(Gui_f#%f%_eLs, 1, pos + StrLen(Config_maxItems) + 2)
@@ -133,7 +132,7 @@ Main_markEntry(f, e, flag) {
 
 Main_markEntryRead() {
 	Local f
-	
+
 	If (Feed#%Gui_aF%_e#%Gui_aE%_flag = "N") {
 		Feed#%Gui_aF%_unreadECount -= 1
 		Main_markEntry(Gui_aF, Gui_aE, " ")
@@ -147,10 +146,10 @@ Main_markEntryRead() {
 
 Main_markFeedRead() {
 	Local e, f
-	
+
 	If (Gui_a = 2) {
 		GuiControlGet, Gui_aE, , Gui#2
-		
+
 		Loop, % Feed#%Gui_aF%_eCount
 			If (Feed#%Gui_aF%_e#%A_Index%_flag = "N") {
 				Feed#%Gui_aF%_e#%A_Index%_flag := " "
@@ -166,7 +165,7 @@ Main_markFeedRead() {
 				Feed#%A_Index%_unreadECount := 0
 				Gui_loadEntryList(A_Index)
 			}
-		
+
 		Gui_loadEntryList(Gui_aF)
 		GuiControl, , Gui#1, % SubStr(Gui_eCountStr1 Feed#%Gui_aF%_eCount, -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 Feed#%Gui_aF%_unreadECount, -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
 		GuiControl, , Gui#2, % Gui_f#%Gui_aF%_eLs
@@ -176,7 +175,7 @@ Main_markFeedRead() {
 
 Main_reloadFeed() {
 	Global
-	
+
 	If (Gui_a = 1) {
 		Suspend, On
 		GuiControlGet, Gui_aF, , Gui#2
@@ -199,7 +198,7 @@ Return
 
 Main_reloadFeeds(flag = 0) {
 	Global
-	
+
 	If (Gui_a = 1) Or flag {
 		Suspend, On
 		Loop, % Config_feedCount {
@@ -220,7 +219,7 @@ Main_reloadFeeds(flag = 0) {
 
 Main_toggleDeleteMark() {
 	Local e, f
-	
+
 	If (Gui_a > 1) {
 		If (Gui_a = 2)
 			GuiControlGet, Gui_aE, , Gui#2
@@ -232,7 +231,7 @@ Main_toggleDeleteMark() {
 			e := Gui_aE
 		}
 		If InStr(Feed#%f%_delete, ";" e ";") {
-			StringReplace, Feed#%f%_delete, Feed#%f%_delete, %e%`;, 
+			StringReplace, Feed#%f%_delete, Feed#%f%_delete, %e%`;,
 			Main_markEntry(f, e, " ")
 			If (Gui_aF = Config_feedCount + 1)
 				Main_markEntry(Gui_aF, Gui_aE, " ")
@@ -251,7 +250,7 @@ Main_toggleDeleteMark() {
 
 Main_toggleUnreadMark() {
 	Local f
-	
+
 	If (Gui_a > 1) {
 		If (Gui_a = 2)
 			GuiControlGet, Gui_aE, , Gui#2
@@ -265,7 +264,7 @@ Main_toggleUnreadMark() {
 			}
 		} Else
 			Main_markEntryRead()
-		
+
 		Gui_loadEntryList(Gui_aF)
 		If (Gui_a = 2) {
 			GuiControl, , Gui#1, % SubStr(Gui_eCountStr1 Feed#%Gui_aF%_eCount, -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 Feed#%Gui_aF%_unreadECount, -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title

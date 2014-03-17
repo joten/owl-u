@@ -1,26 +1,12 @@
-/**
- *	owl-u - feed reader
- *	Copyright (c) 2010-2011 joten
- *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- *	@version 0.2.0.02 (18.09.2011)
- */
+/* Title:   owl-u -- Feed Reader
+   Version: 0.3.0
+   Author:  joten
+   License: GNU General Public License version 3 (GPLv3)
+*/
 
 Config_init() {
 	Local i, p, var, val
-	
+
 	Config_autoReload   := False
 	Config_browser      := "C:\Program Files\Internet Explorer\iexplore.exe"
 	Config_fontName     := "Lucida Console"
@@ -30,14 +16,14 @@ Config_init() {
 	Config_reloadTime   := 0
 	Config_windowHeight := 600
 	Config_windowWidth  := 800
-	
+
 	Config_iniFilePath := A_WorkingDir "\Config.ini"
 	If Not FileExist(Config_iniFilePath) {
 		Config_feed#1_xmlUrl  := "http://www.autohotkey.com/forum/rss.php"
 		Config_feed#1_title   := "AutoHotkey Community"
 		Config_feed#1_htmlUrl := "http://www.autohotkey.com/forum/"
 		Config_feed#1_singleReloadOnly := True
-		
+
 		Config_feed#2_xmlUrl  := "http://www.autohotkey.com/forum/topic33189-0-desc-0.html"
 		Config_feed#2_title   := "bug.n @ autohotkey.com forum"
 		Config_feed#2_htmlUrl := "http://www.autohotkey.com/forum/topic33189-0-desc-0.html"
@@ -48,7 +34,7 @@ Config_init() {
 		Config_feed#2_needleRegEx#2 := "<span class=.nav.><a href=.#top. class=.nav.>Back to top</a></span>.*"
 		Config_feed#2_needleRegEx#3 := "&amp;sid=[0-9a-f]+"
 		Config_feed#2_needleRegExCount := 3
-		
+
 		Config_feedCount := 2
 	} Else
 		Loop, READ, %Config_iniFilePath%
@@ -79,14 +65,14 @@ Config_init() {
 				} Else
 					%var% := val
 			}
-	
+
 	i := Config_feedCount + 1
 	Config_feed#%i%_title := "Summary of new entries"
 }
 
 Config_editIni() {
 	Global Config_iniFilePath
-	
+
 	If Not FileExist(Config_iniFilePath)
 		Config_writeIni()
 	Run, edit %Config_iniFilePath%
@@ -98,7 +84,7 @@ Return
 
 Config_importFeedList() {
 	Local data, filename, i, pos1, pos2, pos3, pos4, type, xmlUrl, xmlUrlExist
-	
+
 	FileSelectFile, filename, 3, , %NAME% %VERSION% - Select file
 	FileRead, data, %filename%
 	If InStr(data, "</opml>") And InStr(data, "</body>") {
@@ -144,7 +130,7 @@ Config_importFeedList() {
 					}
 				If xmlUrlExist
 					Continue
-				
+
 				Config_feedCount += 1
 				Config_feed#%Config_feedCount%_cacheId := Feed_getCacheId(xmlUrl)
 				Config_feed#%Config_feedCount%_xmlUrl := xmlUrl
@@ -168,7 +154,7 @@ Config_importFeedList() {
 
 Config_redirectHotkey(key) {
 	Local fuArgs, fuName, i, j
-	
+
 	Loop, % Config_hotkeyCount
 		If (key = Config_hotkey#%A_index%_key) {
 			i := InStr(Config_hotkey#%A_index%_command, "(")
@@ -184,9 +170,9 @@ Config_redirectHotkey(key) {
 
 Config_writeIni() {
 	Local i, text
-	
+
 	text := "; " NAME " - feed reader`n; @version " VERSION " (" A_DD "." A_MM "." A_YYYY ")`n"
-	
+
 	text .= "`nConfig_autoReload=" Config_autoReload "`n"
 	text .= "Config_browser=" Config_browser "`n"
 	text .= "Config_fontName=" Config_fontName "`n"
@@ -196,7 +182,7 @@ Config_writeIni() {
 	text .= "Config_reloadTime=" Config_reloadTime "`n"
 	text .= "Config_windowHeight=" Config_windowHeight "`n"
 	text .= "Config_windowWidth=" Config_windowWidth "`n"
-	
+
 	Loop, % Config_feedCount {
 		i := A_Index
 		text .= "`nConfig_feed_xmlUrl=" Config_feed#%i%_xmlUrl "`n"
@@ -215,7 +201,7 @@ Config_writeIni() {
 				text .= "Config_feed_replacement=" Config_feed#%i%_replacement#%A_Index% "`n"
 		}
 	}
-	
+
 	FileDelete, %Config_iniFilePath%
 	FileAppend, %text%, %Config_iniFilePath%
 }
