@@ -20,8 +20,9 @@
 NAME	:= "owl-u"
 VERSION := "0.3.0"
 
-; script settings
+;; Script settings
 FileEncoding, UTF-8
+ListLines Off
 OnExit, Main_cleanup
 SetBatchLines, -1
 SetTitleMatchMode, 3
