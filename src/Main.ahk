@@ -279,4 +279,3 @@ Main_toggleUnreadMark() {
 #Include Config.ahk
 #Include Feed.ahk
 #Include Gui.ahk
-#Include Struct.ahk
