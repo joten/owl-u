@@ -13,7 +13,7 @@
 
 Gui_init() {
 	Global Config_fontName, Config_fontSize, Config_feedCount, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth, NAME
-	Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#3_wndId, Gui#4
+	Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#4
 	Global Gui_a, Gui_aF, Gui_bar, Gui_barH, Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr, Gui_inA, Gui_statusBar, Gui_statusBarH, Gui_wndHidden, Gui_wndId, Gui_wndResize
 
 	IfExist %A_ScriptDir%\icon.ico
@@ -72,21 +72,15 @@ Gui_init() {
 		Gui, Add, ListBox, +0x100 AltSubmit Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
 
 		StringReplace, workingDir, A_WorkingDir, \, /, All
-		Gui#3_wndId := Atl_AxCreateContainer(Gui_wndId, 0, Gui_barH, Config_windowWidth, h, "Shell.Explorer")
-		Gui#3 := Atl_AxGetControl(Gui#3_wndId)			; get the iwebbrowser2 interface pointer
+    Gui Add, ActiveX, x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
 		Gui#3.silent := True							; disable annoying script errors from the page
 		Gui#3.Navigate("file:///" workingDir "/html/quick_help.htm")
-		; tank: COM Object Reference [AutoHotkey_L] (http://www.autohotkey.com/forum/topic61509-90.html)
 	} Else {
 		Gui, Add, ListBox, +0x100 AltSubmit W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
 
-		Gui#3_wndId := Atl_AxCreateContainer(Gui_wndId, 0, Gui_barH, Config_windowWidth, h, "Shell.Explorer")
-		Gui#3 := Atl_AxGetControl(Gui#3_wndId)			; get the iwebbrowser2 interface pointer
+    Gui Add, ActiveX, Disabled Hidden x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
 		Gui#3.silent := True							; disable annoying script errors from the page
 		Gui#3.Navigate("about:blank")
-		; tank: COM Object Reference [AutoHotkey_L] (http://www.autohotkey.com/forum/topic61509-90.html)
-
-		WinHide, % "ahk_id " Gui#3_wndId
 	}
 	Gui, Add, StatusBar, vGui#4, Initializing ...
 
@@ -286,10 +280,12 @@ Gui_navigate(d) {
 			GuiControl, Disable, Gui#2
 			GuiControl, Hide, Gui#2
 
-			WinShow, % "ahk_id " Gui#3_wndId
-			ControlFocus, Internet Explorer_Server1, % "ahk_id " Gui#3_wndId
+      GuiControl, Show, Gui#3
+			GuiControl, Enable, Gui#3
+			GuiControl, Focus, Gui#3
 		} Else If (Gui_a > 2 And (d = -1 Or d = -2)) Or (Gui_a = 0 And (Gui_inA = 1 Or Gui_inA = 2)) {
-			WinHide, % "ahk_id " Gui#3_wndId
+			GuiControl, Disable, Gui#3
+			GuiControl, Hide, Gui#3
 			Gui#3.Navigate("about:blank")
 
 			GuiControl, Show, Gui#2
@@ -374,7 +370,7 @@ Gui_openArticle() {
 }
 
 Gui_resize(w = 0, h = 0) {
-	Global Gui#1, Gui#2, Gui#3, Gui#3_wndId, Gui_barH, Gui_statusBarH, Gui_wndId
+	Global Gui#1, Gui#2, Gui#3, Gui_barH, Gui_statusBarH, Gui_wndId
 
 	If (w = 0 Or h = 0) {
 		Sleep, 250
@@ -384,7 +380,7 @@ Gui_resize(w = 0, h = 0) {
 	} Else {
 		h -= Gui_barH + Gui_statusBarH
 		GuiControl, Move, Gui#2, X0 y%Gui_barH% W%w% H%h%
-		WinMove, % "ahk_id " Gui#3_wndId, , 0, Gui_barH, w, h
+		GuiControl, Move, Gui#3, X0 y%Gui_barH% W%w% H%h%
 		w -= 4
 		GuiControl, Move, Gui#1, X4 Y0 W%w% H%Gui_barH%
 	}

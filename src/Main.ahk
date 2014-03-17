@@ -275,7 +275,6 @@ Main_toggleUnreadMark() {
 	}
 }
 
-#Include Atl.ahk
 #Include Config.ahk
 #Include Feed.ahk
 #Include Gui.ahk

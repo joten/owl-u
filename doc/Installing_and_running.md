@@ -3,8 +3,8 @@
 #### Requirements
 
 * Microsoft Windows 2000 or higher
-* [AutoHotkey](http://ahkscript.org/download/) (if running owl-u from source as
-a script)
+* [AutoHotkey](http://ahkscript.org/download/) v1.1.03 or higher (if running
+owl-u from source as a script)
 
 You may either
 [download the stable version of owl-u](https://github.com/joten/owl-u/blob/master/owl-u_stable.zip)

@@ -21,8 +21,8 @@ multiple web sites
 #### Requirements
 
 * Microsoft Windows 2000 or higher
-* [AutoHotkey](http://ahkscript.org/download/) (if running owl-u from source as
-a script)
+* [AutoHotkey](http://ahkscript.org/download/) v1.1.03 or higher (if running
+owl-u from source as a script)
 
 You may either
 [download the stable version of owl-u](https://github.com/joten/owl-u/blob/master/owl-u_stable.zip)
@@ -63,10 +63,5 @@ Additionally the following listing summarizes these sources (of ideas or code):
 
 #### Code snippets
 
-* HotKeyIt: [[AHK_L+H] Struct() - Structures, Arrays, Vectors and more](http://www.autohotkey.com/forum/viewtopic.php?p=364838#364838)
 * Laszlo: [Code to convert from/to UNIX timestamp](http://www.autohotkey.com/forum/topic2633.html)
 * polyethene: [Date parser - convert any date format to YYYYMMDDHH24MISS](http://www.autohotkey.net/~polyethene/#dateparse)
-* tank: [COM Object Reference [AutoHotkey_L]](http://www.autohotkey.com/forum/topic61509-90.html)
-* Sean: Dependancies to above
-  + http://www.autohotkey.com/forum/author-Sean.html
-  + http://www.autohotkey.net/~Sean/Lib/ComUtils.zip
