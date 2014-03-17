@@ -1,0 +1,32 @@
+a {
+	color: #5858b1;
+}
+body {
+	background-color: black;
+	color: white;
+	font-family: DejaVu Sans Mono, monospace;
+	font-size: 12px;
+}
+h1 {
+	font-size: 1.5em;
+}
+p {
+	text-align: justify;
+}
+p#loading {
+	font-size: 1.6em;
+	margin-top: 1em;
+	text-align: center;
+}
+th.abstract {
+	padding-right: 1em;
+	text-align: left;
+}
+th.list {
+	padding-right: 1em;
+	text-align: right;
+}
+.fixed-width {
+	margin-left: 0;
+	width: 600px;
+}
