@@ -25,23 +25,12 @@ Config_init() {
     )
 
   If Not FileExist(Config_iniFilePath) {
-    Config_feed#1_xmlUrl  := "http://www.autohotkey.com/forum/rss.php"
-    Config_feed#1_title   := "AutoHotkey Community"
-    Config_feed#1_htmlUrl := "http://www.autohotkey.com/forum/"
+    Config_feed#1_xmlUrl  := "https://github.com/joten/owl-u/commits/master.atom"
+    Config_feed#1_title   := "owl-u@GitHub"
+    Config_feed#1_htmlUrl := "https://github.com/joten/owl-u"
     Config_feed#1_singleReloadOnly := True
 
-    Config_feed#2_xmlUrl  := "http://www.autohotkey.com/forum/topic33189-0-desc-0.html"
-    Config_feed#2_title   := "bug.n @ autohotkey.com forum"
-    Config_feed#2_htmlUrl := "http://www.autohotkey.com/forum/topic33189-0-desc-0.html"
-    Config_feed#2_htmlSource    := "text"
-    Config_feed#2_singleEntry   := True
-    Config_feed#2_singleReloadOnly := True
-    Config_feed#2_needleRegEx#1 := ".*<th class=.thRight. nowrap=.nowrap.>Message</th>\s</tr>"
-    Config_feed#2_needleRegEx#2 := "<span class=.nav.><a href=.#top. class=.nav.>Back to top</a></span>.*"
-    Config_feed#2_needleRegEx#3 := "&amp;sid=[0-9a-f]+"
-    Config_feed#2_needleRegExCount := 3
-
-    Config_feedCount := 2
+    Config_feedCount := 1
   } Else
     Loop, READ, %Config_iniFilePath%
       If (SubStr(A_LoopReadLine, 1, 7) = "Config_") {
@@ -175,9 +164,9 @@ Config_redirectHotkey(key) {
 }
 
 Config_writeIni() {
-  Local i, text
+  Local ht, i, text
 
-  text := ";; " NAME "`n;; @version " VERSION " (" A_DD "." A_MM "." A_YYYY ")`n"
+  text := ";; " NAME " v" VERSION " (" A_DD "." A_MM "." A_YYYY ")`n"
 
   text .= "`nConfig_autoReload=" Config_autoReload "`n"
   text .= "Config_browser=" Config_browser "`n"
@@ -187,7 +176,10 @@ Config_writeIni() {
   text .= "Config_maxItems=" Config_maxItems "`n"
   text .= "Config_muaCommand=" Config_muaCommand "`n"
   text .= "Config_reloadTime=" Config_reloadTime "`n"
-  text .= "Config_htmlTemplate=" Config_htmlTemplate "`n"
+
+  StringReplace, ht, Config_htmlTemplate, `n, , All
+  text .= "Config_htmlTemplate=" ht "`n"
+
   text .= "Config_windowHeight=" Config_windowHeight "`n"
   text .= "Config_windowWidth=" Config_windowWidth "`n"
 

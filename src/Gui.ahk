@@ -13,7 +13,7 @@
 
 Gui_init() {
   Global Config_fontName, Config_fontSize, Config_feedCount, Config_htmlTemplate, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth
-  Global Main_docDir, NAME
+  Global Feed_cacheDir, Main_docDir, NAME
   Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#4
   Global Gui_a, Gui_aF, Gui_bar, Gui_barH, Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr, Gui_inA, Gui_statusBar, Gui_statusBarH, Gui_wndHidden, Gui_wndId, Gui_wndResize
 
@@ -290,6 +290,7 @@ Gui_navigate(d) {
       GuiControl, Show, Gui#3
       GuiControl, Enable, Gui#3
       GuiControl, Focus, Gui#3
+      ControlFocus, Internet Explorer_Server1
     } Else If (Gui_a > 2 And (d = -1 Or d = -2)) Or (Gui_a = 0 And (Gui_inA = 1 Or Gui_inA = 2)) {
       GuiControl, Disable, Gui#3
       GuiControl, Hide, Gui#3
