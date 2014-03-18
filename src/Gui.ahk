@@ -12,7 +12,8 @@
  */
 
 Gui_init() {
-  Global Config_fontName, Config_fontSize, Config_feedCount, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth, NAME
+  Global Config_fontName, Config_fontSize, Config_feedCount, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth
+  Global Main_docDir, NAME
   Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#4
   Global Gui_a, Gui_aF, Gui_bar, Gui_barH, Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr, Gui_inA, Gui_statusBar, Gui_statusBarH, Gui_wndHidden, Gui_wndId, Gui_wndResize
 
@@ -74,7 +75,7 @@ Gui_init() {
     StringReplace, workingDir, A_WorkingDir, \, /, All
     Gui Add, ActiveX, x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
     Gui#3.silent := True              ; disable annoying script errors from the page
-    Gui#3.Navigate("file:///" workingDir "/html/quick_help.htm")
+    Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
   } Else {
     Gui, Add, ListBox, +0x100 AltSubmit W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
 
@@ -256,7 +257,7 @@ Gui_navigate(d) {
   If (Gui_a = 4 And d = "back" And Not Gui#3.LocationURL = Feed#%Gui_aF%_e#%Gui_aE%_link) {
     If Not (Gui#3.LocationURL = "file:///" workingDir "/html/article.tmp.htm"
       Or Gui#3.LocationURL = "file:///" workingDir "/html/loading.htm"
-      Or Gui#3.LocationURL = "file:///" workingDir "/html/quick_help.htm") {
+      Or Gui#3.LocationURL = "file:///" Main_docDir "/Quick_help.htm") {
       Gui#3.GoBack()
       If (Gui#3.LocationURL = "file:///" workingDir "/html/loading.htm")
         Gui#3.GoForward()
@@ -352,7 +353,7 @@ Gui_navigate(d) {
     }
   } Else If (Gui_a = 0) {
     GuiControl, , Gui#1, % NAME " " VERSION
-    Gui#3.Navigate("file:///" workingDir "/html/quick_help.htm")
+    Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
   }
 }
 

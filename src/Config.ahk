@@ -228,7 +228,7 @@ Config_writeIni() {
   0::Gui_showUnreadEntry(0)        ; Show the first (in time = oldest) unread entry in the list (only available in the abstract or article view).
   +a::Main_markFeedRead()          ; Mark all entries in the current feed read (only available in the entry list view).
   +d::Main_toggleDeleteMark()        ; Toggle the deletion mark ("D") for the selected entry (delete the entry and the associated cached files).
-  +h::Run, explore %A_ScriptDir%\docs    ; Open the documentation directory with the help file in explorer.
+  +h::Run, explore %Main_docDir%    ; Open the documentation directory with the help file in explorer.
   +r::Main_reloadFeeds()          ; Reload all feeds (only available in the feed list view). This action blocks all hotkeys to prevent interference.
   ^e::Config_editIni()          ; Edit the configuration file (Config_iniFilePath).
   ^q::ExitApp                ; Quit owl-u from any view.

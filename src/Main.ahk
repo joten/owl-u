@@ -33,6 +33,7 @@ SetTitleMatchMode, fast
 
 ; pseudo main function
   Suspend, On
+  Main_init()
   Config_init()
   Gui_init()
   Gui_resize()
@@ -56,9 +57,16 @@ SetTitleMatchMode, fast
     Gui_navigate(0)
 Return         ; end of the auto-execute section
 
-/**
- *  function & label definitions
- */
+;; Function & label definitions
+Main_init() {
+  Global Main_docDir
+
+  Main_docDir := A_ScriptDir
+  If (SubStr(A_ScriptDir, -3) = "\src")
+    Main_docDir .= "\.."
+  Main_docDir .= "\doc"
+}
+
 Main_cleanup:
   SB_SetText("Saving feed status ...")
   Loop, % Config_feedCount {
