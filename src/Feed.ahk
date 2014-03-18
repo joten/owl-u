@@ -224,7 +224,7 @@ Feed_parseEntry(i, data) {
           Feed#N%i%_eCount += 1
           j := Feed#N%i%_eCount
           StringReplace, workingDir, A_WorkingDir, \, /, All
-          Feed#N%i%_e#%j%_link := "file:///" workingDir "/html/template.htm?id=" id "&updated=" Feed_getTimestamp(updated)
+          Feed#N%i%_e#%j%_link := "about:blank?id=" id "&updated=" Feed_getTimestamp(updated)
           Feed#N%i%_e#%j%_summary := A_LoopField
           Feed#N%i%_e#%j%_title := nCount " new e-mail" (nCount > 1 ? "s" : "") " in " RegExReplace(id, filter, "$1") "."
           Feed#N%i%_e#%j%_updated := updated

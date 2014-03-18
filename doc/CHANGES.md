@@ -6,6 +6,12 @@
 * `~` changed
 * `+` added
 
+### 0.3.0
+
+* `+` `Config_htmlTemplate` replacing `html\template.htm` and setting an HTML
+template text with variables being replaced by owl-u
+* `-` `html\template.htm`
+
 ### 0.2.0
 
 * `-` `Config_fontColor#1` and `Config_fontColor#2` (=> no different colors

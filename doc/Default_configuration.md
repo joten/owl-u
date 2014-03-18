@@ -32,6 +32,9 @@ email clients are not supported).
 `Config_windowWidth=800`
 > The initial window width of owl-u.
 
+`Config_htmlTemplate=<!doctype html>\`n<html lang="en">\`n<head>\`n  <meta charset="<!-- charset -->">\`n  <link rel="stylesheet" href="./styles.css">\`n</head>\`n<body>\`n\`n<!-- body -->\`n</body>\`n</html>\`n`
+> The HTML template text with variables being replaced by owl-u.
+
 `Config_feed_xmlUrl=http://www.autohotkey.com/forum/rss.php`
 > The Url, from which to download the feed. It is also used for calculating
 cache ids.

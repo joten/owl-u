@@ -106,7 +106,7 @@ Return
 Gui_createHtAbstract() {
   Local body, ht
 
-  FileRead, ht, % A_WorkingDir "\html\template.htm"
+  ht := Config_htmlTemplate
   body := "<table>`n"
   body .= "<tr><th class=""abstract"">Title</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_title "</td></tr>`n"
   body .= "<tr><th class=""abstract"">Date</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_updated "</td></tr>`n"
@@ -172,7 +172,7 @@ Gui_createHtArticle() {
         body := RegExReplace(body, "<ul [^>]+>[\r\s]*</ul>")
         body := "<div class=""fixed-width"">" body "</div>"
       }
-      FileRead, ht, % A_WorkingDir "\html\template.htm"
+      ht := Config_htmlTemplate
       StringReplace, ht, ht, <!-- body -->, %body%
       StringReplace, ht, ht, <!-- charset -->, %charset%
     } Else

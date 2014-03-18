@@ -16,6 +16,12 @@ Config_init() {
   Config_reloadTime   := 0
   Config_windowHeight := 600
   Config_windowWidth  := 800
+  Config_htmlTemplate =
+  (LTrim
+  <!doctype html>`n<html lang="en">
+  <head>`n  <meta charset="<!-- charset -->">`n  <link rel="stylesheet" href="./styles.css">`n</head>
+  <body>`n`n<!-- body -->`n</body>`n</html>
+  )
 
   Config_iniFilePath := A_WorkingDir "\Config.ini"
   If Not FileExist(Config_iniFilePath) {
