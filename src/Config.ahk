@@ -177,15 +177,17 @@ Config_redirectHotkey(key) {
 Config_writeIni() {
   Local i, text
 
-  text := "; " NAME " - feed reader`n; @version " VERSION " (" A_DD "." A_MM "." A_YYYY ")`n"
+  text := ";; " NAME "`n;; @version " VERSION " (" A_DD "." A_MM "." A_YYYY ")`n"
 
   text .= "`nConfig_autoReload=" Config_autoReload "`n"
   text .= "Config_browser=" Config_browser "`n"
+  text .= "Config_cssFilePath=" Config_cssFilePath "`n"
   text .= "Config_fontName=" Config_fontName "`n"
   text .= "Config_fontSize=" Config_fontSize "`n"
   text .= "Config_maxItems=" Config_maxItems "`n"
   text .= "Config_muaCommand=" Config_muaCommand "`n"
   text .= "Config_reloadTime=" Config_reloadTime "`n"
+  text .= "Config_htmlTemplate=" Config_htmlTemplate "`n"
   text .= "Config_windowHeight=" Config_windowHeight "`n"
   text .= "Config_windowWidth=" Config_windowWidth "`n"
 
