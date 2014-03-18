@@ -76,13 +76,14 @@ pressing the hotkey `Shift+R`.
 
 `Config_feed_needleRegEx=`
 > A regular expression, for which to search in the article (HTML) file. With
-this you can filter the article text for the relevant part.
-The next line in `Config.ini` must be for the variable
-`Config_feed_replacement`. You may set more than one
-'needleRegEx'/'replacement' pair.
+this you can filter the article text for the relevant part. If the next line in
+`Config.ini` does not begin with `Config_feed_replacement=`,
+`Config_feed_replacement=` is assumed, i. e. the matching string will be
+deleted. You may set more than one 'needleRegEx'/'replacement' pair.
 
 `Config_feed_replacement=`
-> A regular expression for replacing the text matching the above needle regular
-expression.
-Previous to a line for the variable `Config_feed_replacement` must be a line
-for the variable `Config_feed_needleRegEx`.
+> A string for replacing the text, matching the above needle regular
+expression; it may include backreferences, e. g. `$1`, for the first
+subpattern. Previous to a line for setting the variable
+`Config_feed_replacement` must be a line for setting the variable
+`Config_feed_needleRegEx`.

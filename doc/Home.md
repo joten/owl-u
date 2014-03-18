@@ -32,8 +32,8 @@ the current development version of owl-u; please regard the date of the commit.
 > A short introduction on how to use owl-u.
 
 ##### [Quick help](./Quick_help.htm)
-> An even short introduction on how to use owl-u, which is shown in owl-u
-itself.
+> An even shorter introduction on how to use owl-u; it is the 'in-app-help' of
+owl-u.
 
 ##### [Default hotkeys](./Default_hotkeys.md)
 > A list of all hotkeys with their default mapping to functions and a short

@@ -30,21 +30,13 @@ may set additional variable in the lines following `Config_feed_xmlUrl`; i. a.:
 * `Config_feed_needleRegEx`
 * `Config_feed_replacement`
 
-See the document "[Default configuration](./Default_configuration.md)" for a
-description of these variables.
-
-To configure owl-u to check the Sylpheed email client for new emails, use the
-following feed configuration:
-
-    Config_feed_xmlUrl=mua://#mh/mail/(.+)
-    Config_feed_title=New e-mails (Sylpheed)
-    Config_feed_htmlUrl=
-    Config_feed_cacheId=mua_#mh_mail
-    Config_feed_singleEntry=1
-    Config_feed_needleRegEx=^\s*([0-9]+).+
-    Config_feed_replacement=$1
-    Config_feed_needleRegEx=^[0-9\s]+(.*)
-    Config_feed_replacement=$1
+Read the document "[Default configuration](./Default_configuration.md)" for a
+description of these variables. For more information on values for
+`Config_feed_needleRegEx` and `Config_feed_replacement` see the
+[AutoHotkey documentation on RegExReplace()](http://ahkscript.org/docs/commands/RegExReplace.htm).
+You can find examples for feed configurations in the document
+"[User proposed feed configurations](./User-feed_configurations.md)", including
+one for checking the Sylpheed email client for new emails.
 
 To set a hotkey, use the variable name `Config_hotkey` and [the hotkey notation
 from AutoHotkey](http://ahkscript.org/docs/Hotkeys.htm) as value:
