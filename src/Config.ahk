@@ -9,6 +9,7 @@ Config_init() {
 
   Config_autoReload   := False
   Config_browser      := "C:\Program Files\Internet Explorer\iexplore.exe"
+  Config_cssFilePath  := Main_dataDir "\styles.css"
   Config_fontName     := "Lucida Console"
   Config_fontSize     := 8
   Config_maxItems     := 100
@@ -17,13 +18,12 @@ Config_init() {
   Config_windowHeight := 600
   Config_windowWidth  := 800
   Config_htmlTemplate =
-  (LTrim
-  <!doctype html>`n<html lang="en">
-  <head>`n  <meta charset="<!-- charset -->">`n  <link rel="stylesheet" href="./styles.css">`n</head>
-  <body>`n`n<!-- body -->`n</body>`n</html>
-  )
+    (LTrim
+      <!doctype html>`n<html lang="en">
+      <head>`n  <meta charset="<!-- charset -->">`n  <link rel="stylesheet" href="../styles.css">`n</head>
+      <body>`n`n<!-- body -->`n</body>`n</html>
+    )
 
-  Config_iniFilePath := A_WorkingDir "\Config.ini"
   If Not FileExist(Config_iniFilePath) {
     Config_feed#1_xmlUrl  := "http://www.autohotkey.com/forum/rss.php"
     Config_feed#1_title   := "AutoHotkey Community"

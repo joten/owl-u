@@ -33,12 +33,11 @@ SetTitleMatchMode, fast
 
 ; pseudo main function
   Suspend, On
+  Main_dataDir = %1%
   Main_init()
   Config_init()
   Gui_init()
   Gui_resize()
-  If Not FileExist(A_WorkingDir "\cache")
-    FileCreateDir, %A_WorkingDir%\cache
   Loop, % Config_feedCount {
     SB_SetText("Loading feed (" A_Index "/" Config_feedCount "): """ Config_feed#%A_Index%_title """ ...")
     Feed_init(A_Index)
@@ -59,12 +58,23 @@ Return         ; end of the auto-execute section
 
 ;; Function & label definitions
 Main_init() {
-  Global Main_docDir
+  Global Config_iniFilePath, Feed_cacheDir, Main_dataDir, Main_docDir
 
   Main_docDir := A_ScriptDir
   If (SubStr(A_ScriptDir, -3) = "\src")
     Main_docDir .= "\.."
   Main_docDir .= "\doc"
+
+  If Not Main_dataDir {
+    EnvGet, winAppDataDir, APPDATA
+    Main_dataDir := winAppDataDir "\owl-u"
+  }
+  Main_makeDir(Main_dataDir)
+
+  Config_iniFilePath := Main_dataDir "\Config.ini"
+
+  Feed_cacheDir := Main_dataDir "\cache"
+  Main_makeDir(Feed_cacheDir)
 }
 
 Main_cleanup:
@@ -74,8 +84,9 @@ Main_cleanup:
     Feed_save(A_Index)
   }
   SB_SetText("Cleaning up cache ...")
-  FileDelete, %A_WorkingDir%\cache\*.tmp.xml
-  Loop, %A_WorkingDir%\cache\*, 2, 0
+  FileDelete, %Feed_cacheDir%\*.tmp.htm
+  FileDelete, %Feed_cacheDir%\*.tmp.xml
+  Loop, %Feed_cacheDir%\*, 2, 0
     FileDelete, %A_LoopFileFullPath%\*.tmp.htm
   Gui_cleanup()
 ExitApp
@@ -123,6 +134,20 @@ Main_importFeedList() {
       Gui_navigate(-1)
     Else
       Gui_navigate(0)
+  }
+}
+
+Main_makeDir(dirName) {
+  attrib := FileExist(dirName)
+  If Not attrib {
+    FileCreateDir, %dirName%
+    If ErrorLevel {
+      MsgBox, Error (%ErrorLevel%) when creating '%dirName%'. Aborting.
+      ExitApp
+    }
+  } Else If Not InStr(attrib, "D") {
+    MsgBox, The file path '%dirName%' already exists and is not a directory. Aborting.
+    ExitApp
   }
 }
 

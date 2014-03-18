@@ -58,9 +58,11 @@ The available configuration variables are listed in the document
 associated functions are listed in the document
 "[Default hotkeys](./Default_hotkeys.md)".
 
-Additionally you may edit the `.html` and `.css` files, which are saved in
-the `html` subdirectory of the working directory. These files are used to
-display the reduced articles.
+Additionally you may edit the `.css` file, which is saved in the data
+directory, i. e. either in the directory you specified with the parameter to
+the executable or script, when running owl-u, or in the Windows user directory
+(e. g. `C:\Users\joten\AppData\Roaming\owl-u`). These files are used to display
+the reduced articles.
 
 Please keep in mind that not all file encodings for XML files are supported,
 but can be easily added by editing the source code.

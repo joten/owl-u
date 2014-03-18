@@ -12,7 +12,7 @@
  */
 
 Gui_init() {
-  Global Config_fontName, Config_fontSize, Config_feedCount, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth
+  Global Config_fontName, Config_fontSize, Config_feedCount, Config_htmlTemplate, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth
   Global Main_docDir, NAME
   Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#4
   Global Gui_a, Gui_aF, Gui_bar, Gui_barH, Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr, Gui_inA, Gui_statusBar, Gui_statusBarH, Gui_wndHidden, Gui_wndId, Gui_wndResize
@@ -72,7 +72,6 @@ Gui_init() {
   If Not Gui_a {
     Gui, Add, ListBox, +0x100 AltSubmit Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
 
-    StringReplace, workingDir, A_WorkingDir, \, /, All
     Gui Add, ActiveX, x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
     Gui#3.silent := True              ; disable annoying script errors from the page
     Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
@@ -84,6 +83,13 @@ Gui_init() {
     Gui#3.Navigate("about:blank")
   }
   Gui, Add, StatusBar, vGui#4, Initializing ...
+
+  ;; Create loading.tmp.htm
+  ht := Config_htmlTemplate
+  StringReplace, ht, ht, <!-- charset -->, utf-8
+  StringReplace, ht, ht, <!-- body -->, <p id="loading">loading ...</p>
+  FileDelete, % Feed_cacheDir "\loading.tmp.htm"
+  FileAppend, %ht%, % Feed_cacheDir "\loading.tmp.htm"
 
   Gui, Show, AutoSize, %NAME%
 }
@@ -118,8 +124,8 @@ Gui_createHtAbstract() {
 
   StringReplace, ht, ht, <!-- charset -->, utf-8
   StringReplace, ht, ht, <!-- body -->, %body%
-  FileDelete, % A_WorkingDir "\html\abstract.tmp.htm"
-  FileAppend, %ht%, % A_WorkingDir "\html\abstract.tmp.htm"
+  FileDelete, % Feed_cacheDir "\abstract.tmp.htm"
+  FileAppend, %ht%, % Feed_cacheDir "\abstract.tmp.htm"
 }
 
 Gui_createHtArticle() {
@@ -134,7 +140,7 @@ Gui_createHtArticle() {
   }
   url := Feed#%f%_e#%e%_link
   filename := Feed_getCacheId(url, Config_feed#%f%_htmlUrl)
-  filename := A_WorkingDir "\cache\" Config_feed#%f%_cacheId "\" filename
+  filename := Feed_cacheDir "\" Config_feed#%f%_cacheId "\" filename
   If FileExist(filename ".htm")
     filename .= ".htm"
   Else {
@@ -178,10 +184,10 @@ Gui_createHtArticle() {
     } Else
       Loop, % Config_feed#%f%_needleRegExCount
         ht := RegExReplace(ht, Config_feed#%f%_needleRegEx#%A_Index%, Config_feed#%f%_replacement#%A_Index%)
-    FileDelete, % A_WorkingDir "\html\article.tmp.htm"
-    FileAppend, %ht%, % A_WorkingDir "\html\article.tmp.htm"
+    FileDelete, % Feed_cacheDir "\article.tmp.htm"
+    FileAppend, %ht%, % Feed_cacheDir "\article.tmp.htm"
 
-    Return, A_WorkingDir "\html\article.tmp.htm"
+    Return, Feed_cacheDir "\article.tmp.htm"
   } Else
     Return, url
 }
@@ -246,20 +252,20 @@ Gui_loadEntryList(i) {
 }
 
 Gui_navigate(d) {
-  Local eCount, fLs, i, text, unreadECount, workingDir
+  Local dir, eCount, fLs, i, text, unreadECount
 
   If Gui_wndResize {
     Gui_resize()
     Gui_wndResize := False
   }
 
-  StringReplace, workingDir, A_WorkingDir, \, /, All
+  StringReplace, dir, Feed_cacheDir, \, /, All
   If (Gui_a = 4 And d = "back" And Not Gui#3.LocationURL = Feed#%Gui_aF%_e#%Gui_aE%_link) {
-    If Not (Gui#3.LocationURL = "file:///" workingDir "/html/article.tmp.htm"
-      Or Gui#3.LocationURL = "file:///" workingDir "/html/loading.htm"
+    If Not (Gui#3.LocationURL = "file:///" dir "/article.tmp.htm"
+      Or Gui#3.LocationURL = "file:///" dir "/loading.tmp.htm"
       Or Gui#3.LocationURL = "file:///" Main_docDir "/Quick_help.htm") {
       Gui#3.GoBack()
-      If (Gui#3.LocationURL = "file:///" workingDir "/html/loading.htm")
+      If (Gui#3.LocationURL = "file:///" dir "/loading.tmp.htm")
         Gui#3.GoForward()
       Return
     }
@@ -342,13 +348,13 @@ Gui_navigate(d) {
     StringReplace, text, text, &, &&, All
     GuiControl, , Gui#1, % text
     Gui_createHtAbstract()
-    Gui#3.Navigate("file:///" workingDir "/html/abstract.tmp.htm")
+    Gui#3.Navigate("file:///" dir "/abstract.tmp.htm")
     Main_markEntryRead()
   } Else If (Gui_a = 4) {
     If (SubStr(Config_feed#%Gui_aF%_xmlUrl, 1, 6) = "mua://")
       Run, % SubStr(Config_muaCommand, 1, InStr(Config_muaCommand, ".exe")) "exe"
     Else {
-      Gui#3.Navigate("file:///" workingDir "/html/loading.htm")
+      Gui#3.Navigate("file:///" dir "/loading.tmp.htm")
       Gui#3.Navigate(Gui_createHtArticle())
     }
   } Else If (Gui_a = 0) {

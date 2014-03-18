@@ -1,2 +1,3 @@
 *.ini
-src/html/abstract.tmp.htm
+*.lnk
+data/styles.css

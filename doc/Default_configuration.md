@@ -6,6 +6,10 @@
 `Config_browser=C:\Program Files\Internet Explorer\iexplore.exe`
 > The browser, which is used, when opening an article or a link list.
 
+`Config_cssFilePath=<Main_dataDir>\styles.css`
+> The file path to the style sheet used for `HTML` files shown in the Internet
+Explorer control.
+
 `Config_fontName=Lucida Console`
 > The font type, which is used for all text (title and status bar, lists,
 summaries and articles in text mode).

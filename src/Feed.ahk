@@ -32,7 +32,7 @@ Feed_init(i) {
       Config_feed#%i%_htmlUrl := SubStr(Config_feed#%i%_xmlUrl, 1, InStr(Config_feed#%i%_xmlUrl, "/", False, InStr(Config_feed#%i%_xmlUrl, ".")))
     If Not Config_feed#%i%_cacheId
       Config_feed#%i%_cacheId := Feed_getCacheId(Config_feed#%i%_xmlUrl)
-    filename := A_WorkingDir "\cache\" Config_feed#%i%_cacheId
+    filename := Feed_cacheDir "\" Config_feed#%i%_cacheId
     If Not FileExist(filename)
       FileCreateDir, %filename%
     filename .= "\entries.ini"
@@ -63,7 +63,7 @@ Feed_cleanup(i) {
   Loop, PARSE, Feed#%i%_delete, `;
   {
     filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)
-    filename := A_WorkingDir "\cache\" Config_feed#%i%_cacheId "\" filename
+    filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
     FileMove, %filename%.htm, %filename%.tmp.htm
     Loop, % Feed#%i%_eCount - A_LoopField {
       j := A_LoopField + A_Index
@@ -134,7 +134,7 @@ Feed_downloadArticle(i, j) {
   url := Feed#%i%_e#%j%_link
   If Not (SubStr(url, 1, 6) = "mua://") {
     filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
-    filename := A_WorkingDir "\cache\" Config_feed#%i%_cacheId "\" filename
+    filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
     If FileExist(filename ".htm")
       Return
     Else If FileExist(filename ".tmp.htm")
@@ -186,7 +186,7 @@ Feed_getTimestamp(str) {
 ; polyethene: Date parser - convert any date format to YYYYMMDDHH24MISS (http://www.autohotkey.net/~polyethene/#dateparse)
 
 Feed_parseEntry(i, data) {
-  Local filter, id, j, nCount, updated, workingDir
+  Local filter, id, j, nCount, updated
 
   If Config_feed#%i%_htmlSource {
     StringReplace, data, data, `r`n, , All
@@ -223,7 +223,6 @@ Feed_parseEntry(i, data) {
         If id And RegExMatch(id, filter) {
           Feed#N%i%_eCount += 1
           j := Feed#N%i%_eCount
-          StringReplace, workingDir, A_WorkingDir, \, /, All
           Feed#N%i%_e#%j%_link := "about:blank?id=" id "&updated=" Feed_getTimestamp(updated)
           Feed#N%i%_e#%j%_summary := A_LoopField
           Feed#N%i%_e#%j%_title := nCount " new e-mail" (nCount > 1 ? "s" : "") " in " RegExReplace(id, filter, "$1") "."
@@ -353,7 +352,7 @@ Feed_reload(i) {
 
   SB_SetText(statusStr " downloading")
   url := Config_feed#%i%_xmlUrl
-  filename := A_WorkingDir "\cache\" i "_" A_Now A_MSec ".tmp.xml"
+  filename := Feed_cacheDir "\" i "_" A_Now A_MSec ".tmp.xml"
   If (SubStr(url, 1, 6) = "mua://") {
     muaFilename := SubStr(Config_muaCommand, 1, InStr(Config_muaCommand, ".exe")) "exe"
     muaFilename := SubStr(muaFilename, InStr(muaFilename, "\", False, 0) + 1)
@@ -448,7 +447,7 @@ Feed_reload(i) {
 Feed_save(i) {
   Local filename, text
 
-  filename := A_WorkingDir "\cache\" Config_feed#%i%_cacheId "\entries.ini"
+  filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\entries.ini"
   text := "; " NAME " - feed reader`n; @version " VERSION "`n; " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
 
   text .= "timestamp=" Feed#%i%_timestamp "`n"

@@ -64,7 +64,7 @@ view).
 > Toggle the deletion mark ("D") for the selected entry (delete the entry and
 the associated cached files).
 
-`+h::Run, explore doc`
+`+h::Run, explore <A_ScriptDir>(\..)?\doc`
 > Open the documentation directory with the help file in explorer.
 
 `+r::Main_reloadFeeds()`

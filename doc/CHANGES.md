@@ -11,6 +11,11 @@
 * `+` `Config_htmlTemplate` replacing `html\template.htm` and setting an HTML
 template text with variables being replaced by owl-u
 * `-` `html\template.htm`
+* `~` The data directory is now given by the first command line argument,
+rather than by setting the working directory; if not given it defaults to a
+subdirectory in the user's APPDATA directory.
+* `+` `Config_cssFilePath` setting the file path to the style sheet used for
+`HTML` files shown in the Internet Explorer control
 
 ### 0.2.0
 
