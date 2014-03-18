@@ -26,9 +26,9 @@ By default owl-u stores the session data (configuration and cache) to the
 user's APPDATA directory, e. g. `C:\Users\joten\AppData\Roaming\owl-u`.
 
 You may redirect the owl-u data directory by setting the first argument either
-to the executable or to the main script (`Main.ahk`), when running owl-u,
-e. g. `C:\Program Files\owl-u\owl-u.exe D:\owl-u`; but you will need to have
-write access to this directory.
+of the executable or the main script (`Main.ahk`), when running owl-u, e. g.
+`C:\Program Files\owl-u\owl-u.exe D:\owl-u`; but you will need to have write
+access to this directory.
 
 You can run owl-u manually, either by using the executable and starting it like
 any other application, or by using the main script (`Main.ahk`) and starting it

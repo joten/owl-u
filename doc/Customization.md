@@ -5,9 +5,9 @@ bindings for the owl-u functions).
 
 To change either of them, first create a configuration file (`Config.ini`) by
 using the hotkey `^w`, i. e. `Ctrl+W`, or `I` for importing a feed list in OPML
-format. The file is either saved in the directory you specified with the
-parameter to the executable or script when running owl-u, or in the Windows
-user directory (e. g. `C:\Users\joten\AppData\Roaming\owl-u`).
+format. The file is either saved in the directory you specified with the first
+command line argument, when running owl-u, or in the Windows user directory
+(e. g. `C:\Users\joten\AppData\Roaming\owl-u`).
 
 You may then edit the file with a text editor, i. a. using the hotkey `^e`
 (`Ctrl+E`), and add a new line for each configuration variable with its value;
@@ -30,8 +30,8 @@ may set additional variable in the lines following `Config_feed_xmlUrl`; i. a.:
 * `Config_feed_needleRegEx`
 * `Config_feed_replacement`
 
-Please see the document "[Default configuration](./Default_configuration.md)"
-for a description of these variables.
+See the document "[Default configuration](./Default_configuration.md)" for a
+description of these variables.
 
 To configure owl-u to check the Sylpheed email client for new emails, use the
 following feed configuration:
@@ -59,10 +59,9 @@ associated functions are listed in the document
 "[Default hotkeys](./Default_hotkeys.md)".
 
 Additionally you may edit the `.css` file, which is saved in the data
-directory, i. e. either in the directory you specified with the parameter to
-the executable or script, when running owl-u, or in the Windows user directory
-(e. g. `C:\Users\joten\AppData\Roaming\owl-u`). These files are used to display
-the reduced articles.
+directory, i. e. either in the directory you specified  with the first command
+line argument, when running owl-u, or in the Windows user directory (e. g.
+`C:\Users\joten\AppData\Roaming\owl-u`).
 
 Please keep in mind that not all file encodings for XML files are supported,
 but can be easily added by editing the source code.
