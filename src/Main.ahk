@@ -1,5 +1,5 @@
 /* Title:   owl-u -- Feed Reader
-   Version: 0.3.0
+   Version: 0.4.0
    Author:  joten
    License: GNU General Public License version 3 (GPLv3)
 
@@ -18,7 +18,7 @@
 */
 
 NAME  := "owl-u"
-VERSION := "0.3.0"
+VERSION := "0.4.0"
 
 ;; Script settings
 FileEncoding, UTF-8

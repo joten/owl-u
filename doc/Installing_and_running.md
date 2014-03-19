@@ -7,12 +7,11 @@
 owl-u from source as a script)
 
 You may either
-[download the last version of owl-u](https://github.com/joten/owl-u/blob/master/owl-u_0.2.0.zip)
-from the repository, or
-[download the current development version](https://github.com/joten/owl-u/archive/master.zip)
-as the repository itself. Either way, you will have a `zip` file including an
-executable (`owl-u*.exe`), the source (`src\*`) and documentation (`doc\*`)
-files.
+[download the latest released version](https://github.com/joten/owl-u/releases/latest),
+or
+[download the current development version](https://github.com/joten/owl-u/archive/master.zip).
+Either way, you will have a `zip` file including an executable (`owl-u*.exe`),
+the source (`src\*`) and documentation (`doc\*`) files.
 
 There is no installation process for owl-u. Unpack the `zip` file, and you
 should be able to run either the executable as it is or the main script

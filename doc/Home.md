@@ -17,16 +17,15 @@ hotkeys) for each version of owl-u.
 #### [Installing and running owl-u](./Installing_and_running.md)
 > A description of how to install and run owl-u.
 
-##### [Pre-GitHub version](../owl-u_0.2.0.zip)
-> The last version released before the source code was made available at
-[GitHub](https://github.com/joten/owl-u). It is a package (`.zip` file), which
-includes the source code, a compiled version as a single executable and the
+##### [Latest released version](https://github.com/joten/owl-u/releases/latest)
+> The latest version released. It is a package (`.zip` file), which includes
+the source code, a compiled version as a single executable and the
 corresponding documentation for that version.
 
-##### [Release version](../owl-u.exe)
-> An executable compiled from the source code. It is either for a file release,
-or a more or less recent representation of the current development version; in
-the latter case take account of the commit date.
+##### [Current development version](https://github.com/joten/owl-u/archive/master.zip)
+> The version currently in development. Please regard, that the included
+executable is only more or less recently compiled; take account of the commit
+date.
 
 #### Usage
 

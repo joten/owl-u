@@ -1,5 +1,5 @@
 /* Title:   owl-u -- Feed Reader
-   Version: 0.3.0
+   Version: 0.4.0
    Author:  joten
    License: GNU General Public License version 3 (GPLv3)
 */
