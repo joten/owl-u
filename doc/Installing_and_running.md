@@ -7,7 +7,7 @@
 owl-u from source as a script)
 
 You may either
-[download the stable version of owl-u](https://github.com/joten/owl-u/blob/master/owl-u_stable.zip)
+[download the last version of owl-u](https://github.com/joten/owl-u/blob/master/owl-u_0.2.0.zip)
 from the repository, or
 [download the current development version](https://github.com/joten/owl-u/archive/master.zip)
 as the repository itself. Either way, you will have a `zip` file including an
