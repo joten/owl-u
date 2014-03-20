@@ -52,6 +52,25 @@ GuiClose:
   ExitApp
 Return
 
+GUI_convertHtmlToText(s) {
+  s := RegExReplace(s, "<form.+?</form>")
+  s := RegExReplace(s, "<iframe.+?</iframe>")
+  s := RegExReplace(s, "<object.+?</object>")
+  s := RegExReplace(s, "<script.+?</script>")
+  s := RegExReplace(s, "<style.+?</style>")
+
+  s := RegExReplace(s, "</?div[^>]*>")
+  s := RegExReplace(s, "<img [^>]+>")
+  s := RegExReplace(s, "<!--.+?-->")
+  s := RegExReplace(s, "<a [^>]+>[\r\s]*</a>")
+  s := RegExReplace(s, "<noscript>[\r\s]*</noscript>")
+  s := RegExReplace(s, "<li [^>]+>[\r\s]*</li>")
+  s := RegExReplace(s, "<ul [^>]+>[\r\s]*</ul>")
+  s := "<div class=""fixed-width"">" s "</div>"
+
+  Return, s
+}
+
 Gui_createHtAbstract() {
   Local body, ht
 
@@ -72,7 +91,7 @@ Gui_createHtAbstract() {
 }
 
 Gui_createHtArticle() {
-  Local body, charset, e, f, filename, ht, p, url
+  Local body, charset, e, f, filename, ht
 
   If (Gui_aF = Config_feedCount + 1) {
     f := Feed#%Gui_aF%_e#%Gui_aE%_f
@@ -81,46 +100,19 @@ Gui_createHtArticle() {
     f := Gui_aF
     e := Gui_aE
   }
-  url := Feed#%f%_e#%e%_link
-  filename := Feed_getCacheId(url, Config_feed#%f%_htmlUrl)
-  filename := Feed_cacheDir "\" Config_feed#%f%_cacheId "\" filename
-  If FileExist(filename ".htm")
-    filename .= ".htm"
-  Else {
-    filename .= ".tmp.htm"
-    If Not FileExist(filename)
-      UrlDownloadToFile, %url%, %filename%
-  }
 
   If Gui_f#%f%_htmlSource {
+    filename := GUI_getHtmlFile(f, e)
     FileRead, ht, %filename%
     StringReplace, ht, ht, `r`n, , All
     StringReplace, ht, ht, `n, , All
     If (Gui_f#%f%_htmlSource = "body" Or Gui_f#%f%_htmlSource = "text") {
-      p := InStr(ht, "charset=", False, InStr(ht, "http-equiv=""Content-Type"""))
-      If p
-        charset := SubStr(ht, p + 8, InStr(ht, """", False, p + 8) - (p + 8))
-      If Not charset
-        charset := "utf-8"
+      charset := GUI_getHtmlCharset(ht)
       body := RegExReplace(ht, ".*<body.*?>(.*)</body>.*", "$1")
       Loop, % Config_feed#%f%_needleRegExCount
         body := RegExReplace(body, Config_feed#%f%_needleRegEx#%A_Index%, Config_feed#%f%_replacement#%A_Index%)
-      If (Gui_f#%f%_htmlSource = "text") {
-        body := RegExReplace(body, "<form.+?</form>")
-        body := RegExReplace(body, "<iframe.+?</iframe>")
-        body := RegExReplace(body, "<object.+?</object>")
-        body := RegExReplace(body, "<script.+?</script>")
-        body := RegExReplace(body, "<style.+?</style>")
-
-        body := RegExReplace(body, "</?div[^>]*>")
-        body := RegExReplace(body, "<img [^>]+>")
-        body := RegExReplace(body, "<!--.+?-->")
-        body := RegExReplace(body, "<a [^>]+>[\r\s]*</a>")
-        body := RegExReplace(body, "<noscript>[\r\s]*</noscript>")
-        body := RegExReplace(body, "<li [^>]+>[\r\s]*</li>")
-        body := RegExReplace(body, "<ul [^>]+>[\r\s]*</ul>")
-        body := "<div class=""fixed-width"">" body "</div>"
-      }
+      If (Gui_f#%f%_htmlSource = "text")
+        body := GUI_convertHtmlToText(body)
       ht := Config_htmlTemplate
       StringReplace, ht, ht, <!-- body -->, %body%
       StringReplace, ht, ht, <!-- charset -->, %charset%
@@ -132,7 +124,7 @@ Gui_createHtArticle() {
 
     Return, Feed_cacheDir "\article.tmp.htm"
   } Else
-    Return, url
+    Return, Feed#%f%_e#%e%_link
 }
 
 GUI_createLoadingPage() {
@@ -218,6 +210,33 @@ GUI_getElementSize() {
   GuiControlGet, Gui_statusBar, Pos
   Gui, Destroy
   Gui, 1: Default
+}
+
+GUI_getHtmlCharset(s) {
+  p := InStr(s, "charset=", False, InStr(s, "http-equiv=""Content-Type"""))
+  If p
+    charset := SubStr(s, p + 8, InStr(s, """", False, p + 8) - (p + 8))
+  If Not charset
+    charset := "utf-8"
+
+  Return, charset
+}
+
+GUI_getHtmlFile(i, j) {
+  Local filename, url
+
+  url := Feed#%i%_e#%j%_link
+  filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
+  filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
+  If FileExist(filename ".htm")
+    filename .= ".htm"
+  Else {
+    filename .= ".tmp.htm"
+    If Not FileExist(filename)
+      UrlDownloadToFile, %url%, %filename%
+  }
+
+  Return, filename
 }
 
 Gui_helpSuspendHotkeys(flag) {
