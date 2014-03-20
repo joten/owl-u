@@ -12,86 +12,29 @@
  */
 
 Gui_init() {
-  Global Config_fontName, Config_fontSize, Config_feedCount, Config_htmlTemplate, Config_iniFilePath, Config_maxItems, Config_reloadTime, Config_windowHeight, Config_windowWidth
-  Global Feed_cacheDir, Main_docDir, NAME
-  Global Gui#0, Gui#1, Gui#2, Gui#3, Gui#4
-  Global Gui_a, Gui_aF, Gui_bar, Gui_barH, Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr, Gui_inA, Gui_statusBar, Gui_statusBarH, Gui_wndHidden, Gui_wndId, Gui_wndResize
+  Global Config_iniFilePath, Config_reloadTime, Config_windowHeight, Config_windowWidth
+  Global Gui_a, Gui_aF, Gui_barH, Gui_inA, Gui_statusBarH, Gui_wndHidden, Gui_wndResize
 
+  ;; Tray icon
   IfExist %A_ScriptDir%\icon.ico
     Menu, Tray, Icon, %A_ScriptDir%\icon.ico
-  If Config_reloadTime {
-    Menu, Tray, Icon
-    Menu, Tray, NoStandard
-    Menu, Tray, Add, Hide/Show window, Gui_hideShowWindow
-    Menu, Tray, Add, Reload feeds, Main_reloadFeeds
-    Menu, Tray, Add,
-    Menu, Tray, Add, Quit, Gui_exitApp
-    Menu, Tray, Default, Hide/Show window
-  }
-  Gui, 1: Default
-  IfWinExist, %NAME%
-    Gui, Destroy
-  Gui, +LastFound +0xCF0000 -0x80000000
+  If Config_reloadTime
+    GUI_createTrayIcon()
+
+  ;; Main window
   Gui_wndHidden := False
-  Gui_wndId := WinExist()
   Gui_wndResize := True
-
-  Gui, Font, s%Config_fontSize%, %Config_fontName%
-
-  wndTitle := "OWLU_GUI_99"
-  Gui, 99: Default
-  Gui, Font, s%Config_fontSize%, %Config_fontName%
-  Gui, Add, Text, x0 y0 vGui_bar, |
-  GuiControlGet, Gui_bar, Pos
-  Gui, Add, StatusBar, x0 y0 vGui_statusBar, |
-  GuiControlGet, Gui_statusBar, Pos
-  Gui, Destroy
-  Gui, 1: Default
-
-  h := Config_windowHeight - Gui_barH - Gui_statusBarH
-  w := Config_windowWidth - 4
-
   If FileExist(Config_iniFilePath)
     Gui_a := 1
   Else
     Gui_a := 0
   Gui_inA := 1
   Gui_aF  := 1
-  Gui_fCountStr := ""
-  Loop, % StrLen(Config_feedCount)
-    Gui_fCountStr .= " "
-  Gui_eCountStr0 := ""
-  Loop, % StrLen(Config_maxItems * Config_feedCount)
-    Gui_eCountStr0 .= " "
-  Gui_eCountStr1 := ""
-  Loop, % StrLen(Config_maxItems)
-    Gui_eCountStr1 .= " "
-  StringTrimRight, Gui_eCountStr1, Gui_eCountStr1, 1
 
-  Gui, Add, Text, W%w% H%h% X4 Y0 vGui#1,
-  If Not Gui_a {
-    Gui, Add, ListBox, +0x100 AltSubmit Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
-
-    Gui Add, ActiveX, x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
-    Gui#3.silent := True              ; disable annoying script errors from the page
-    Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
-  } Else {
-    Gui, Add, ListBox, +0x100 AltSubmit W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
-
-    Gui Add, ActiveX, Disabled Hidden x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
-    Gui#3.silent := True              ; disable annoying script errors from the page
-    Gui#3.Navigate("about:blank")
-  }
-  Gui, Add, StatusBar, vGui#4, Initializing ...
-
-  ;; Create loading.tmp.htm
-  ht := Config_htmlTemplate
-  StringReplace, ht, ht, <!-- charset -->, utf-8
-  StringReplace, ht, ht, <!-- body -->, <p id="loading">loading ...</p>
-  FileDelete, % Feed_cacheDir "\loading.tmp.htm"
-  FileAppend, %ht%, % Feed_cacheDir "\loading.tmp.htm"
-
-  Gui, Show, AutoSize, %NAME%
+  GUI_createLoadingPage()
+  GUI_getColumnWidth()
+  GUI_getElementSize()
+  GUI_createMainWindow(Config_windowWidth - 4, Config_windowHeight - Gui_barH - Gui_statusBarH)
 }
 
 Gui_initFeed(i) {
@@ -192,9 +135,90 @@ Gui_createHtArticle() {
     Return, url
 }
 
+GUI_createLoadingPage() {
+  Global Config_htmlTemplate, Feed_cacheDir
+
+  ht := Config_htmlTemplate
+  StringReplace, ht, ht, <!-- charset -->, utf-8
+  StringReplace, ht, ht, <!-- body -->, <p id="loading">loading ...</p>
+  FileDelete, % Feed_cacheDir "\loading.tmp.htm"
+  FileAppend, %ht%, % Feed_cacheDir "\loading.tmp.htm"
+}
+
+GUI_createMainWindow(w, h) {
+  Global Config_fontName, Config_fontSize, Config_windowWidth, Main_docDir, NAME
+  Global Gui#1, Gui#2, Gui#3, Gui#4, Gui_a, Gui_barH, Gui_wndId
+
+  Gui, 1: Default
+  IfWinExist, %NAME%
+    Gui, Destroy
+  Gui, +LastFound +0xCF0000 -0x80000000
+  Gui, Font, s%Config_fontSize%, %Config_fontName%
+  Gui_wndId := WinExist()
+
+  Gui, Add, Text, W%w% H%h% X4 Y0 vGui#1,
+  If Not Gui_a {
+    Gui, Add, ListBox, +0x100 AltSubmit Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
+
+    Gui Add, ActiveX, x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
+    Gui#3.silent := True              ; disable annoying script errors from the page
+    Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
+  } Else {
+    Gui, Add, ListBox, +0x100 AltSubmit W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
+
+    Gui Add, ActiveX, Disabled Hidden x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
+    Gui#3.silent := True              ; disable annoying script errors from the page
+    Gui#3.Navigate("about:blank")
+  }
+  Gui, Add, StatusBar, vGui#4, Initializing ...
+
+  Gui, Show, AutoSize, %NAME%
+}
+
+GUI_createTrayIcon() {
+  Menu, Tray, Icon
+  Menu, Tray, NoStandard
+  Menu, Tray, Add, Hide/Show window, Gui_hideShowWindow
+  Menu, Tray, Add, Reload feeds, Main_reloadFeeds
+  Menu, Tray, Add,
+  Menu, Tray, Add, Quit, Gui_exitApp
+  Menu, Tray, Default, Hide/Show window
+}
+
 Gui_exitApp:
   ExitApp
 Return
+
+GUI_getColumnWidth() {
+  Global Config_feedCount, Config_maxItems
+  Global Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr
+
+  Gui_fCountStr := ""
+  Loop, % StrLen(Config_feedCount)
+    Gui_fCountStr .= " "
+  Gui_eCountStr0 := ""
+  Loop, % StrLen(Config_maxItems * Config_feedCount)
+    Gui_eCountStr0 .= " "
+  Gui_eCountStr1 := ""
+  Loop, % StrLen(Config_maxItems)
+    Gui_eCountStr1 .= " "
+  StringTrimRight, Gui_eCountStr1, Gui_eCountStr1, 1
+}
+
+GUI_getElementSize() {
+  Global Config_fontName, Config_fontSize
+  Global Gui_bar, Gui_barH, Gui_statusBar, Gui_statusBarH
+
+  wndTitle := "owl-u_GUI_99"
+  Gui, 99: Default
+  Gui, Font, s%Config_fontSize%, %Config_fontName%
+  Gui, Add, Text, x0 y0 vGui_bar, |
+  GuiControlGet, Gui_bar, Pos
+  Gui, Add, StatusBar, x0 y0 vGui_statusBar, |
+  GuiControlGet, Gui_statusBar, Pos
+  Gui, Destroy
+  Gui, 1: Default
+}
 
 Gui_helpSuspendHotkeys(flag) {
   If flag {
