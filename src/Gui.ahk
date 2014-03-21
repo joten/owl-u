@@ -239,6 +239,26 @@ GUI_getHtmlFile(i, j) {
   Return, filename
 }
 
+GUI_getMarkedItem(d, mark) {
+  Local a, b, eStr, i
+
+  a := InStr(Gui_f#%Gui_aF%_eLs, "|" SubStr(Gui_eCountStr1 Gui_aE, -StrLen(Config_maxItems) + 1) "  ")
+  If (d > 0) {
+    eStr := SubStr(Gui_f#%Gui_aF%_eLs, 1, a)
+    b := InStr(eStr, "  " Gui_eCountStr1 mark "  ", False, 0)
+  } Else If (d < 0) {
+    eStr := SubStr(Gui_f#%Gui_aF%_eLs, a)
+    b := InStr(eStr, "  " Gui_eCountStr1 mark "  ")
+  } Else {
+    eStr := Gui_f#%Gui_aF%_eLs
+    b := InStr(eStr, "  " Gui_eCountStr1 mark "  ", False, 0)
+  }
+  If (b > 0)
+    i := SubStr(eStr, b - StrLen(Config_maxItems), StrLen(Config_maxItems))
+
+  Return, i + 0
+}
+
 Gui_helpSuspendHotkeys(flag) {
   If flag {
     ; enabled: i, q, +h, ^e, ^q, ^r, ^w
@@ -438,26 +458,13 @@ Gui_resize(w = 0, h = 0) {
 }
 
 Gui_showUnreadEntry(d) {
-  Local a, b, eStr, i, text
+  Local i, text
 
   If (Gui_a > 2) {
     If (Feed#%Gui_aF%_unreadECount > 0) {
-      a := InStr(Gui_f#%Gui_aF%_eLs, "|" SubStr(Gui_eCountStr1 Gui_aE, -StrLen(Config_maxItems) + 1) "  ")
-      If (d > 0) {
-        eStr := SubStr(Gui_f#%Gui_aF%_eLs, 1, a)
-        b := InStr(eStr, "  " Gui_eCountStr1 "N  ", False, 0)
-      } Else If (d < 0) {
-        eStr := SubStr(Gui_f#%Gui_aF%_eLs, a)
-        b := InStr(eStr, "  " Gui_eCountStr1 "N  ")
-      } Else {
-        eStr := Gui_f#%Gui_aF%_eLs
-        b := InStr(eStr, "  " Gui_eCountStr1 "N  ", False, 0)
-      }
-      If (b > 0)
-        i := SubStr(eStr, b - StrLen(Config_maxItems), StrLen(Config_maxItems))
-
+      i := GUI_getMarkedItem(d, "N")
       If (i > 0) {
-        Gui_aE := i + 0
+        Gui_aE := i
         text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" Feed#%Gui_aF%_eCount "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
         StringReplace, text, text, &, &&, All
         GuiControl, , Gui#1, % text
