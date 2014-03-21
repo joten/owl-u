@@ -13,7 +13,7 @@
 
 Gui_init() {
   Global Config_iniFilePath, Config_reloadTime, Config_windowHeight, Config_windowWidth
-  Global Gui_a, Gui_aF, Gui_barH, Gui_inA, Gui_statusBarH, Gui_wndHidden, Gui_wndResize
+  Global Gui_a, Gui_aF, Gui_barH, Gui_inA, Gui_statusBarH, Gui_wndHidden
 
   ;; Tray icon
   IfExist %A_ScriptDir%\icon.ico
@@ -23,7 +23,6 @@ Gui_init() {
 
   ;; Main window
   Gui_wndHidden := False
-  Gui_wndResize := True
   If FileExist(Config_iniFilePath)
     Gui_a := 1
   Else
@@ -302,6 +301,21 @@ Gui_hideShowWindow:
   Gui_wndHidden := Not Gui_wndHidden
 Return
 
+GUI_IE_navigate(d) {
+  Local dir
+
+  StringReplace, dir, Feed_cacheDir, \, /, All
+  If (Gui_a = 4 And d = "back" And Not Gui#3.LocationURL = Feed#%Gui_aF%_e#%Gui_aE%_link) {
+    If Not (Gui#3.LocationURL = "file:///" dir "/article.tmp.htm"
+      Or Gui#3.LocationURL = "file:///" dir "/loading.tmp.htm"
+      Or Gui#3.LocationURL = "file:///" Main_docDir "/Quick_help.htm") {
+      Gui#3.GoBack()
+      If (Gui#3.LocationURL = "file:///" dir "/loading.tmp.htm")
+        Gui#3.GoForward()
+    }
+  }
+}
+
 Gui_loadEntryList(i) {
   Local title
 
@@ -315,24 +329,8 @@ Gui_loadEntryList(i) {
 }
 
 Gui_navigate(d) {
-  Local dir, eCount, fLs, i, text, unreadECount
+  Local dir
 
-  If Gui_wndResize {
-    Gui_resize()
-    Gui_wndResize := False
-  }
-
-  StringReplace, dir, Feed_cacheDir, \, /, All
-  If (Gui_a = 4 And d = "back" And Not Gui#3.LocationURL = Feed#%Gui_aF%_e#%Gui_aE%_link) {
-    If Not (Gui#3.LocationURL = "file:///" dir "/article.tmp.htm"
-      Or Gui#3.LocationURL = "file:///" dir "/loading.tmp.htm"
-      Or Gui#3.LocationURL = "file:///" Main_docDir "/Quick_help.htm") {
-      Gui#3.GoBack()
-      If (Gui#3.LocationURL = "file:///" dir "/loading.tmp.htm")
-        Gui#3.GoForward()
-      Return
-    }
-  }
   If (Gui_a > 0 And Not d = "h" And (Gui_a + d < 1 Or Gui_a + d > 4))
     Return
   If (d = "h")
@@ -346,23 +344,10 @@ Gui_navigate(d) {
       If (Feed#%Gui_aF%_eCount < 1)
         Return
     }
-    If (Gui_a = 2 And d > 0) Or ((Gui_a = 1 Or Gui_a = 2) And Gui_a + d = 0) {
-      GuiControl, Disable, Gui#2
-      GuiControl, Hide, Gui#2
-
-      GuiControl, Show, Gui#3
-      GuiControl, Enable, Gui#3
-      GuiControl, Focus, Gui#3
-      ControlFocus, Internet Explorer_Server1
-    } Else If (Gui_a > 2 And (d = -1 Or d = -2)) Or (Gui_a = 0 And (Gui_inA = 1 Or Gui_inA = 2)) {
-      GuiControl, Disable, Gui#3
-      GuiControl, Hide, Gui#3
-      Gui#3.Navigate("about:blank")
-
-      GuiControl, Show, Gui#2
-      GuiControl, Enable, Gui#2
-      GuiControl, Focus, Gui#2
-    }
+    If (Gui_a = 2 And d > 0) Or ((Gui_a = 1 Or Gui_a = 2) And Gui_a + d = 0)
+      GUI_toggleView(2, 3)
+    Else If (Gui_a > 2 And (d = -1 Or d = -2)) Or (Gui_a = 0 And (Gui_inA = 1 Or Gui_inA = 2))
+      GUI_toggleView(3, 2)
     If (Gui_a = 0) {
       Gui_a := Gui_inA
       Gui_helpSuspendHotkeys(0)
@@ -376,52 +361,28 @@ Gui_navigate(d) {
   }
 
   If (Gui_a = 1) {
-    Loop, % Config_feedCount {
-      eCount += Feed#%A_Index%_eCount
-      unreadECount += Feed#%A_Index%_unreadECount
-      fLs .= "|" SubStr(Gui_fCountStr A_Index, -StrLen(Config_feedCount) + 1)
-      fLs .= "  [" SubStr(Gui_eCountStr0 Feed#%A_Index%_unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1)
-      fLs .= "/" SubStr(Gui_eCountStr0 Feed#%A_Index%_eCount, -StrLen(Config_maxItems * Config_feedCount) + 1)
-      fLs .= "]  " Config_feed#%A_Index%_title
-    }
-    SB_SetText("Loading summary of new entries ...")
-    i := Config_feedCount + 1
-    Feed_init(i)
-    Gui_loadEntryList(i)
-    SB_SetText("")
-    fLs .= "|" SubStr(Gui_fCountStr " ", -StrLen(Config_feedCount) + 1)
-    fLs .= "   " SubStr(Gui_eCountStr0 Feed#%i%_unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1)
-    fLs .= " " SubStr(Gui_eCountStr0 " ", -StrLen(Config_maxItems * Config_feedCount) + 1)
-    fLs .= "   " Config_feed#%i%_title
-    GuiControl, , Gui#1, % SubStr(Gui_fCountStr Config_feedCount, -StrLen(Config_feedCount) + 1) "  [" SubStr(Gui_eCountStr0 unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1) "/" SubStr(Gui_eCountStr0 eCount, -StrLen(Config_maxItems * Config_feedCount) + 1) "]"
-    GuiControl, , Gui#2, % fLs
+    GUI_setFeedList()
     GuiControl, Choose, Gui#2, % Gui_aF
     Gui_aE := 1
   } Else If (Gui_a = 2) {
     If (d > 0)
       GuiControlGet, Gui_aF, , Gui#2
-    text := SubStr(Gui_eCountStr1 Feed#%Gui_aF%_eCount, -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 Feed#%Gui_aF%_unreadECount, -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
-    StringReplace, text, text, &, &&, All
-    GuiControl, , Gui#1, % text
-    GuiControl, , Gui#2, % Gui_f#%Gui_aF%_eLs
+    GUI_setEntryList()
     GuiControl, Choose, Gui#2, % Gui_aE
   } Else If (Gui_a = 3) {
     If (d > 0)
       GuiControlGet, Gui_aE, , Gui#2
-    text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" Feed#%Gui_aF%_eCount "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
-    StringReplace, text, text, &, &&, All
-    GuiControl, , Gui#1, % text
-    Gui_createHtAbstract()
-    Gui#3.Navigate("file:///" dir "/abstract.tmp.htm")
+    GUI_setAbstractView()
     Main_markEntryRead()
-  } Else If (Gui_a = 4) {
+  } Else If (Gui_a = 4) {     ;; Set the article view.
     If (SubStr(Config_feed#%Gui_aF%_xmlUrl, 1, 6) = "mua://")
       Run, % SubStr(Config_muaCommand, 1, InStr(Config_muaCommand, ".exe")) "exe"
     Else {
+      StringReplace, dir, Feed_cacheDir, \, /, All
       Gui#3.Navigate("file:///" dir "/loading.tmp.htm")
       Gui#3.Navigate(Gui_createHtArticle())
     }
-  } Else If (Gui_a = 0) {
+  } Else If (Gui_a = 0) {     ;; Set the help view.
     GuiControl, , Gui#1, % NAME " " VERSION
     Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
   }
@@ -455,6 +416,52 @@ Gui_resize(w = 0, h = 0) {
     w -= 4
     GuiControl, Move, Gui#1, X4 Y0 W%w% H%Gui_barH%
   }
+}
+
+GUI_setAbstractView() {
+  Local dir, text
+
+  text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" Feed#%Gui_aF%_eCount "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
+  StringReplace, text, text, &, &&, All
+  GuiControl, , Gui#1, % text
+
+  StringReplace, dir, Feed_cacheDir, \, /, All
+  Gui_createHtAbstract()
+  Gui#3.Navigate("file:///" dir "/abstract.tmp.htm")
+}
+
+GUI_setEntryList() {
+  Local text
+
+  text := SubStr(Gui_eCountStr1 Feed#%Gui_aF%_eCount, -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 Feed#%Gui_aF%_unreadECount, -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
+  StringReplace, text, text, &, &&, All
+  GuiControl, , Gui#1, % text
+
+  GuiControl, , Gui#2, % Gui_f#%Gui_aF%_eLs
+}
+
+GUI_setFeedList() {
+  Local eCount, fLs, i, unreadECount
+
+  Loop, % Config_feedCount {
+    eCount += Feed#%A_Index%_eCount
+    unreadECount += Feed#%A_Index%_unreadECount
+    fLs .= "|" SubStr(Gui_fCountStr A_Index, -StrLen(Config_feedCount) + 1)
+    fLs .= "  [" SubStr(Gui_eCountStr0 Feed#%A_Index%_unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1)
+    fLs .= "/" SubStr(Gui_eCountStr0 Feed#%A_Index%_eCount, -StrLen(Config_maxItems * Config_feedCount) + 1)
+    fLs .= "]  " Config_feed#%A_Index%_title
+  }
+  SB_SetText("Loading summary of new entries ...")
+  i := Config_feedCount + 1
+  Feed_init(i)
+  Gui_loadEntryList(i)
+  SB_SetText("")
+  fLs .= "|" SubStr(Gui_fCountStr " ", -StrLen(Config_feedCount) + 1)
+  fLs .= "   " SubStr(Gui_eCountStr0 Feed#%i%_unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1)
+  fLs .= " " SubStr(Gui_eCountStr0 " ", -StrLen(Config_maxItems * Config_feedCount) + 1)
+  fLs .= "   " Config_feed#%i%_title
+  GuiControl, , Gui#1, % SubStr(Gui_fCountStr Config_feedCount, -StrLen(Config_feedCount) + 1) "  [" SubStr(Gui_eCountStr0 unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1) "/" SubStr(Gui_eCountStr0 eCount, -StrLen(Config_maxItems * Config_feedCount) + 1) "]"
+  GuiControl, , Gui#2, % fLs
 }
 
 Gui_showUnreadEntry(d) {
@@ -500,4 +507,17 @@ Gui_toggleSourceView() {
       Gui_f#%f%_htmlSource := ""
     Gui_navigate(0)
   }
+}
+
+GUI_toggleView(a, b) {
+  GuiControl, Disable, Gui#%a%
+  GuiControl, Hide, Gui#%a%
+  If (a = 3)
+    Gui#3.Navigate("about:blank")
+
+  GuiControl, Show, Gui#%b%
+  GuiControl, Enable, Gui#%b%
+  GuiControl, Focus, Gui#%b%
+  If (b = 3)
+    ControlFocus, Internet Explorer_Server1
 }

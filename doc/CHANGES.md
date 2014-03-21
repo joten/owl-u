@@ -6,6 +6,10 @@
 * `~` changed
 * `+` added
 
+### 0.4.0
+
+* `~` `BackSpace::Gui_navigate("back")` -> `BackSpace::Gui_IE_navigate("back")`
+
 ### 0.3.0
 
 * `+` `Config_htmlTemplate` replacing `html\template.htm` and setting an HTML

@@ -214,7 +214,7 @@ Config_writeIni() {
  */
 #IfWinActive owl-u ahk_class AutoHotkeyGUI
 {
-  BackSpace::Gui_navigate("back")      ; Go back in the embedded Internet Explorer, if it shows an article.
+  BackSpace::Gui_IE_navigate("back")      ; Go back in the embedded Internet Explorer, if it shows an article.
   d::Main_download()            ; Download the article(s) of the selected entry or feed (all entries).
   Enter::Gui_navigate(+1)          ; Go to the next view (feeds -> entries -> abstract -> article).
   h::Gui_navigate("h")          ; Show the list of supported hotkeys.

@@ -15,7 +15,7 @@ You will have to press all keys of a hotkey at the same time beginning with the
 modifier for calling the associated function, e. g. `^q` means pressing the
 'Control key' and the 'Q key' (`Ctrl+Q`) for quitting owl-u.
 
-`BackSpace::Gui_navigate(back)`
+`BackSpace::Gui_IE_navigate(back)`
 > Go back in the embedded Internet Explorer, if it shows an article.
 
 `d::Main_download()`

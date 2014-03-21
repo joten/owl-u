@@ -54,6 +54,7 @@ SetTitleMatchMode, fast
       SetTimer, Main_reloadFeeds, %Config_reloadTime%
   } Else
     Gui_navigate(0)
+  Gui_resize()
 Return         ; end of the auto-execute section
 
 ;; Function & label definitions
