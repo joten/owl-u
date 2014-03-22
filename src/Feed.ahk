@@ -55,8 +55,9 @@ Feed_init(i) {
 }
 
 Feed_cleanup(i) {
-  Local filename, j, k
+  Local filename
 
+  ;; Delete entries from the deletion list `Feed#%i%_delete`
   StringTrimLeft, Feed#%i%_delete, Feed#%i%_delete, 1
   StringTrimRight, Feed#%i%_delete, Feed#%i%_delete, 1
   Sort, Feed#%i%_delete, NRD`;
@@ -65,24 +66,8 @@ Feed_cleanup(i) {
     filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
     FileMove, %filename%.htm, %filename%.tmp.htm
-    Loop, % Feed#%i%_eCount - A_LoopField {
-      j := A_LoopField + A_Index
-      k := j - 1
-      Feed#%i%_e#%k%_author     := Feed#%i%_e#%j%_author
-      Feed#%i%_e#%k%_flag       := Feed#%i%_e#%j%_flag
-      Feed#%i%_e#%k%_link       := Feed#%i%_e#%j%_link
-      Feed#%i%_e#%k%_summary    := Feed#%i%_e#%j%_summary
-      Feed#%i%_e#%k%_title      := Feed#%i%_e#%j%_title
-      Feed#%i%_e#%k%_updated    := Feed#%i%_e#%j%_updated
-    }
-    k := Feed#%i%_eCount
-    Feed#%i%_e#%k%_author     := ""
-    Feed#%i%_e#%k%_flag       := ""
-    Feed#%i%_e#%k%_link       := ""
-    Feed#%i%_e#%k%_summary    := ""
-    Feed#%i%_e#%k%_title      := ""
-    Feed#%i%_e#%k%_updated    := ""
-    Feed#%i%_eCount -= 1
+    Feed_moveUpperEntries(i, A_LoopField)
+    Feed_deleteLastEntry(i)
   }
   Feed#%i%_delete := ";"
 }
@@ -126,6 +111,17 @@ Feed_decodeHtmlChar(text) {
   }
 
   Return, text
+}
+
+Feed_deleteLastEntry(i) {
+  Local field, j
+
+  j := Feed#%i%_eCount
+  Loop, % Feed_entryField_#0 {
+    field := Feed_entryField_#%A_Index%
+    Feed#%i%_e#%j%_%field% := ""
+  }
+  Feed#%i%_eCount -= 1
 }
 
 Feed_downloadArticle(i, j) {
@@ -250,6 +246,19 @@ Feed_moveOldEntries(i, m, n) {
   }
 
   Return, u
+}
+
+Feed_moveUpperEntries(i, p) {
+  Local field, j, k
+
+  Loop, % Feed#%i%_eCount - p {
+    j := p + A_Index
+    k := j - 1
+    Loop, % Feed_entryField_#0 {
+      field := Feed_entryField_#%A_Index%
+      Feed#%i%_e#%k%_%field% := Feed#%i%_e#%j%_%field%
+    }
+  }
 }
 
 Feed_parseEntry(i, data) {
