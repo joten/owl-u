@@ -148,6 +148,22 @@ Feed_downloadArticle(i, j) {
   }
 }
 
+Feed_downloadToFile(i, filename) {
+  Local muaFilename, url
+
+  url := Config_feed#%i%_xmlUrl
+  If (SubStr(url, 1, 6) = "mua://") {
+    muaFilename := SubStr(Config_muaCommand, 1, InStr(Config_muaCommand, ".exe")) "exe"
+    muaFilename := SubStr(muaFilename, InStr(muaFilename, "\", False, 0) + 1)
+    Process, Exist, %muaFilename%
+    If ErrorLevel {
+      RunWait, % comspec " /c """ Config_muaCommand """ > " filename, , Hide
+      WinActivate, ahk_id %Gui_wndId%
+    }
+  } Else
+    UrlDownloadToFile, %url%, %filename%
+}
+
 Feed_getCacheId(string, replacement = "") {
   If replacement
     StringReplace, string, string, %replacement%,
@@ -184,6 +200,57 @@ Feed_getTimestamp(str) {
   Return, d
 }
 ; polyethene: Date parser - convert any date format to YYYYMMDDHH24MISS (http://www.autohotkey.net/~polyethene/#dateparse)
+
+Feed_moveDelEntries(i, d, m) {
+  Local field, j, k
+
+  Loop, % d {                   ;; Mark entries for deletion and move them behind the end of the list (backwards)
+    j := m + d - A_Index + 1
+    k := Config_maxItems + d - A_Index + 1
+    Feed#%i%_delete .= k ";"
+    Loop, % Feed_entryField_#0 {
+      field := Feed_entryField_#%A_Index%
+      Feed#%i%_e#%k%_%field% := Feed#%i%_e#%j%_%field%
+    }
+    Feed#%i%_e#%k%_flag := "D"
+  }
+}
+
+Feed_moveNewEntries(i, n) {
+  Local field, j
+
+  Loop, % Feed#N%i%_eCount {
+    j := A_Index
+    If (j <= n) {
+      Loop, % Feed_entryField_#0 {
+        field := Feed_entryField_#%A_Index%
+        Feed#%i%_e#%j%_%field% := Feed#N%i%_e#%j%_%field%
+      }
+      Feed#%i%_e#%j%_flag := "N"
+    }
+    Loop, % Feed_entryField_#0 {
+      field := Feed_entryField_#%j%
+      Feed#N%i%_e#%j%_%field% := ""
+    }
+  }
+}
+
+Feed_moveOldEntries(i, m, n) {
+  Local field, j, k, u = 0
+
+  Loop, % m {                   ;; Move the existing entries to the end (behind the new entries) of the list (backwards)
+    j := m - A_Index + 1
+    k := n + m - A_Index + 1
+    Loop, % Feed_entryField_#0 {
+      field := Feed_entryField_#%A_Index%
+      Feed#%i%_e#%k%_%field% := Feed#%i%_e#%j%_%field%
+      If (field = "flag" And Feed#%i%_e#%k%_flag = "N")
+        u += 1
+    }
+  }
+
+  Return, u
+}
 
 Feed_parseEntry(i, data) {
   Local filter, id, j, nCount, updated
@@ -345,24 +412,7 @@ Feed_parseEntries(i, data) {
   Feed#N%i%_eCount := n
 }
 
-Feed_reload(i) {
-  Local d = 0, data, encoding, filename, j, k, m = 0, muaFilename, n = 0, p, statusStr, u = 0, url
-
-  GuiControlGet, statusStr, , Gui#4
-
-  SB_SetText(statusStr " downloading")
-  url := Config_feed#%i%_xmlUrl
-  filename := Feed_cacheDir "\" i "_" A_Now A_MSec ".tmp.xml"
-  If (SubStr(url, 1, 6) = "mua://") {
-    muaFilename := SubStr(Config_muaCommand, 1, InStr(Config_muaCommand, ".exe")) "exe"
-    muaFilename := SubStr(muaFilename, InStr(muaFilename, "\", False, 0) + 1)
-    Process, Exist, %muaFilename%
-    If ErrorLevel {
-      RunWait, % comspec " /c """ Config_muaCommand """ > " filename, , Hide
-      WinActivate, ahk_id %Gui_wndId%
-    }
-  } Else
-    UrlDownloadToFile, %url%, %filename%
+Feed_readEncodedFile(filename) {
   FileRead, data, %filename%
   p := InStr(data, "encoding=", False, InStr(data, "<\?xml")) + 10
   encoding := SubStr(data, p, InStr(data, """", False, p) - p)
@@ -372,6 +422,17 @@ Feed_reload(i) {
   Else If (encoding = "iso-8859-15")
     FileRead, data, *P28605 %filename%
 
+  Return, data
+}
+
+Feed_reload(i) {
+  Local d = 0, data, filename, m = 0, n = 0, statusStr, u = 0
+
+  GuiControlGet, statusStr, , Gui#4
+  SB_SetText(statusStr " downloading")
+  filename := Feed_cacheDir "\" i "_" A_Now A_MSec ".tmp.xml"
+  Feed_downloadToFile(i, filename)
+  data := Feed_readEncodedFile(filename)
   SB_SetText(statusStr)
 
   If data {
@@ -379,59 +440,23 @@ Feed_reload(i) {
       Feed_parseEntry(i, data)
     Else
       Feed_parseEntries(i, data)
-    n := Feed#N%i%_eCount
+    n := Feed#N%i%_eCount           ;; Number of new entries
     If (Feed#%i%_eCount And n < Config_maxItems) {
       Feed_cleanup(i)
-      m := Config_maxItems - n
+      m := Config_maxItems - n      ;; Number of old entries, to be kept
       If (Feed#%i%_eCount < m)
         m := Feed#%i%_eCount
       Else
-        d := Feed#%i%_eCount - m
-      Loop, % d {
-        j := m + d - A_Index + 1
-        k := Config_maxItems + d - A_Index + 1
-        Feed#%i%_delete .= k ";"
-        Feed#%i%_e#%k%_author     := Feed#%i%_e#%j%_author
-        Feed#%i%_e#%k%_flag       := "D"
-        Feed#%i%_e#%k%_link       := Feed#%i%_e#%j%_link
-        Feed#%i%_e#%k%_summary    := Feed#%i%_e#%j%_summary
-        Feed#%i%_e#%k%_title      := Feed#%i%_e#%j%_title
-        Feed#%i%_e#%k%_updated    := Feed#%i%_e#%j%_updated
-      }
-      Loop, % m {
-        j := m - A_Index + 1
-        k := n + m - A_Index + 1
-        Feed#%i%_e#%k%_author     := Feed#%i%_e#%j%_author
-        Feed#%i%_e#%k%_flag       := Feed#%i%_e#%j%_flag
-        If (Feed#%i%_e#%k%_flag = "N")
-          u += 1
-        Feed#%i%_e#%k%_link       := Feed#%i%_e#%j%_link
-        Feed#%i%_e#%k%_summary    := Feed#%i%_e#%j%_summary
-        Feed#%i%_e#%k%_title      := Feed#%i%_e#%j%_title
-        Feed#%i%_e#%k%_updated    := Feed#%i%_e#%j%_updated
-      }
+        d := Feed#%i%_eCount - m    ;; Number of old entries, to be deleted
+      Feed_moveDelEntries(i, d, m)
+      u := Feed_moveOldEntries(i, m, n)
     } Else If (n > Config_maxItems)
       n := Config_maxItems
-    Loop, % Feed#N%i%_eCount {
-      If (A_Index <= n) {
-        Feed#%i%_e#%A_Index%_author     := Feed#N%i%_e#%A_Index%_author
-        Feed#%i%_e#%A_Index%_flag       := "N"
-        Feed#%i%_e#%A_Index%_link       := Feed#N%i%_e#%A_Index%_link
-        Feed#%i%_e#%A_Index%_summary    := Feed#N%i%_e#%A_Index%_summary
-        Feed#%i%_e#%A_Index%_title      := Feed#N%i%_e#%A_Index%_title
-        Feed#%i%_e#%A_Index%_updated    := Feed#N%i%_e#%A_Index%_updated
-      }
-      Feed#N%i%_e#%A_Index%_author     := ""
-      Feed#N%i%_e#%A_Index%_link       := ""
-      Feed#N%i%_e#%A_Index%_summary    := ""
-      Feed#N%i%_e#%A_Index%_title      := ""
-      Feed#N%i%_e#%A_Index%_updated    := ""
-    }
+    Feed_moveNewEntries(i, n)
     StringReplace, Config_feed#%i%_title, Config_feed#%i%_title, % " [ERROR!]", , All
     Feed#%i%_timestamp := Feed#N%i%_timestamp
     Feed#%i%_eCount := n + m + d
     Feed#%i%_unreadECount := u + n
-
     Feed#N%i%_eCount :=
     Feed#N%i%_timestamp :=
 
