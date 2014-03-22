@@ -7,34 +7,15 @@
 Feed_init(i) {
   Local filename, j, k, var, val
 
-  If (i = Config_feedCount + 1) {
-    j := 0
-    Loop, % Config_feedCount {
-      k := A_Index
-      Loop, % Feed#%k%_eCount
-        If (Feed#%k%_e#%A_Index%_flag = "N") {
-          j += 1
-          Feed#%i%_e#%j%_f       := k
-          Feed#%i%_e#%j%_e       := A_index
-          Feed#%i%_e#%j%_author  := Feed#%k%_e#%A_Index%_author
-          Feed#%i%_e#%j%_flag    := "N"
-          Feed#%i%_e#%j%_link    := Feed#%k%_e#%A_Index%_link
-          Feed#%i%_e#%j%_summary := Feed#%k%_e#%A_Index%_summary
-          Feed#%i%_e#%j%_title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]"
-          Feed#%i%_e#%j%_title   .= "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " Feed#%k%_e#%A_Index%_title
-          Feed#%i%_e#%j%_updated := Feed#%k%_e#%A_Index%_updated
-        }
-    }
-    Feed#%i%_eCount := j
-    Feed#%i%_unreadECount := j
-  } Else {
+  If (i = Config_feedCount + 1)
+    Feed_initSummary(i)
+  Else {
     If Not Config_feed#%i%_htmlUrl
       Config_feed#%i%_htmlUrl := SubStr(Config_feed#%i%_xmlUrl, 1, InStr(Config_feed#%i%_xmlUrl, "/", False, InStr(Config_feed#%i%_xmlUrl, ".")))
     If Not Config_feed#%i%_cacheId
       Config_feed#%i%_cacheId := Feed_getCacheId(Config_feed#%i%_xmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId
-    If Not FileExist(filename)
-      FileCreateDir, %filename%
+    Main_makeDir(filename)
     filename .= "\entries.ini"
     If FileExist(filename)
       Loop, READ, %filename%
@@ -52,6 +33,29 @@ Feed_init(i) {
       Feed#%i%_unreadECount := 0
     Feed#%i%_delete := ";"
   }
+}
+
+Feed_initSummary(i) {
+  Local j = 0, k
+
+  Loop, % Config_feedCount {
+    k := A_Index
+    Loop, % Feed#%k%_eCount
+      If (Feed#%k%_e#%A_Index%_flag = "N") {
+        j += 1
+        Feed#%i%_e#%j%_f       := k
+        Feed#%i%_e#%j%_e       := A_Index
+        Feed#%i%_e#%j%_author  := Feed#%k%_e#%A_Index%_author
+        Feed#%i%_e#%j%_flag    := "N"
+        Feed#%i%_e#%j%_link    := Feed#%k%_e#%A_Index%_link
+        Feed#%i%_e#%j%_summary := Feed#%k%_e#%A_Index%_summary
+        Feed#%i%_e#%j%_title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]"
+        Feed#%i%_e#%j%_title   .= "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " Feed#%k%_e#%A_Index%_title
+        Feed#%i%_e#%j%_updated := Feed#%k%_e#%A_Index%_updated
+      }
+  }
+  Feed#%i%_eCount := j
+  Feed#%i%_unreadECount := j
 }
 
 Feed_cleanup(i) {
