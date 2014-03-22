@@ -445,22 +445,22 @@ Feed_reload(i) {
 }
 
 Feed_save(i) {
-  Local filename, text
+  Local field, filename, text
 
   filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\entries.ini"
-  text := "; " NAME " - feed reader`n; @version " VERSION "`n; " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
+  text := ";; " NAME " v" VERSION " -- " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
 
   text .= "timestamp=" Feed#%i%_timestamp "`n"
   text .= "eCount=" Feed#%i%_eCount "`n"
-  text .= "unreadECount=" Feed#%i%_unreadECount "`n`n"
+  text .= "unreadECount=" Feed#%i%_unreadECount "`n"
   Loop, % Feed#%i%_eCount {
-    text .= "e#" A_Index "_author=" Feed#%i%_e#%A_Index%_author "`n"
-    text .= "e#" A_Index "_flag=" Feed#%i%_e#%A_Index%_flag "`n"
-    text .= "e#" A_Index "_link=" Feed#%i%_e#%A_Index%_link "`n"
-    StringReplace, Feed#%i%_e#%A_Index%_summary, Feed#%i%_e#%A_Index%_summary, `n, <br/>, All
-    text .= "e#" A_Index "_summary=" Feed#%i%_e#%A_Index%_summary "`n"
-    text .= "e#" A_Index "_title=" Feed#%i%_e#%A_Index%_title "`n"
-    text .= "e#" A_Index "_updated=" Feed#%i%_e#%A_Index%_updated "`n"
+    text .= "`n"
+    Loop, % Feed_entryField_#0 {
+      field := Feed_entryField_#%A_Index%
+      If (field = "summary")
+        StringReplace, Feed#%i%_e#%A_Index%_summary, Feed#%i%_e#%A_Index%_summary, `n, <br/>, All
+      text .= "e#" A_Index "_" field "=" Feed#%i%_e#%A_Index%_%field% "`n"
+    }
   }
 
   FileDelete, %filename%
