@@ -442,6 +442,7 @@ GUI_setEntryList() {
   GuiControl, , Gui#1, % text
 
   GuiControl, , Gui#2, % Gui_f#%Gui_aF%_eLs
+  GuiControl, Choose, Gui#2, % Gui_aE
 }
 
 GUI_setFeedList() {

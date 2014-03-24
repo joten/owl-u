@@ -198,9 +198,7 @@ Main_markFeedRead() {
       }
 
     Gui_loadEntryList(Gui_aF)
-    GuiControl, , Gui#1, % SubStr(Gui_eCountStr1 Feed#%Gui_aF%_eCount, -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 Feed#%Gui_aF%_unreadECount, -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
-    GuiControl, , Gui#2, % Gui_f#%Gui_aF%_eLs
-    GuiControl, Choose, Gui#2, % Gui_aE
+    GUI_setEntryList()
   }
 }
 
@@ -268,8 +266,7 @@ Main_toggleDeleteMark() {
       If (Gui_aF = Config_feedCount + 1)
         Main_markEntry(Gui_aF, Gui_aE, "D")
     }
-    GuiControl, , Gui#2, % Gui_f#%Gui_aF%_eLs
-    GuiControl, Choose, Gui#2, % Gui_aE
+    GUI_setEntryList()
   }
 }
 
@@ -291,11 +288,8 @@ Main_toggleUnreadMark() {
       Main_markEntryRead()
 
     Gui_loadEntryList(Gui_aF)
-    If (Gui_a = 2) {
-      GuiControl, , Gui#1, % SubStr(Gui_eCountStr1 Feed#%Gui_aF%_eCount, -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 Feed#%Gui_aF%_unreadECount, -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
-      GuiControl, , Gui#2, % Gui_f#%Gui_aF%_eLs
-      GuiControl, Choose, Gui#2, % Gui_aE
-    }
+    If (Gui_a = 2)
+      GUI_setEntryList()
   }
 }
 
