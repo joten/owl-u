@@ -233,12 +233,12 @@ Feed_getTimestamp(str) {
   SetFormat, Float, %f%
 
   d -= 19700101000000,seconds
-  ; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
+  ;; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
 
   d := d + (t6 > 0 ? (t5 . (t6 * 3600)) + 0 : 0)
   Return, d
 }
-; polyethene: Date parser - convert any date format to YYYYMMDDHH24MISS (http://www.autohotkey.net/~polyethene/#dateparse)
+;; polyethene: Date parser - convert any date format to YYYYMMDDHH24MISS (http://www.autohotkey.net/~polyethene/#dateparse)
 
 Feed_moveDelEntries(i, d, m) {
   Local field, j, k
@@ -339,7 +339,7 @@ Feed_parseEntry(i, data) {
   }
 
   Feed#N%i%_timestamp := Feed_getTimestamp(updated)
-  ; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
+  ;; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
 }
 
 Feed_parseEntries(i, data) {
