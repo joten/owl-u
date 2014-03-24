@@ -321,6 +321,17 @@ Gui_loadEntryList(i) {
     Gui_f#%i%_eLs := "|"
 }
 
+GUI_markEntry(f, e, flag) {
+  Local pos, replace, search
+
+  search  := "|" SubStr(Gui_eCountStr1 e, -StrLen(Config_maxItems) + 1)
+  pos     := InStr(Gui_f#%f%_eLs, search)
+  replace := SubStr(Gui_f#%f%_eLs, 1, pos + StrLen(Config_maxItems) + 2)
+  replace .= SubStr(Gui_eCountStr1 flag, -StrLen(Config_maxItems) + 1)
+  replace .= SubStr(Gui_f#%f%_eLs, pos + 2 * StrLen(Config_maxItems) + 3)
+  Gui_f#%f%_eLs := replace
+}
+
 Gui_navigate(d) {
   Local dir
 

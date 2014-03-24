@@ -155,16 +155,10 @@ Main_makeDir(dirName) {
 }
 
 Main_markEntry(f, e, flag) {
-  Local pos, replace, search
+  Global
 
   Feed#%f%_e#%e%_flag := flag
-
-  search  := "|" SubStr(Gui_eCountStr1 e, -StrLen(Config_maxItems) + 1)
-  pos     := InStr(Gui_f#%f%_eLs, search)
-  replace := SubStr(Gui_f#%f%_eLs, 1, pos + StrLen(Config_maxItems) + 2)
-  replace .= SubStr(Gui_eCountStr1 flag, -StrLen(Config_maxItems) + 1)
-  replace .= SubStr(Gui_f#%f%_eLs, pos + 2 * StrLen(Config_maxItems) + 3)
-  Gui_f#%f%_eLs := replace
+  GUI_markEntry(f, e, flag)
 }
 
 Main_markEntryRead() {
