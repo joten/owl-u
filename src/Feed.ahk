@@ -512,7 +512,7 @@ Feed_reload(i) {
 }
 
 Feed_save(i) {
-  Local field, filename, text
+  Local field, filename, j, text
 
   filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\entries.ini"
   text := ";; " NAME " v" VERSION " -- " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
@@ -521,12 +521,13 @@ Feed_save(i) {
   text .= "eCount=" Feed#%i%_eCount "`n"
   text .= "unreadECount=" Feed#%i%_unreadECount "`n"
   Loop, % Feed#%i%_eCount {
+    j := A_Index
     text .= "`n"
     Loop, % Feed_entryField_#0 {
       field := Feed_entryField_#%A_Index%
       If (field = "summary")
-        StringReplace, Feed#%i%_e#%A_Index%_summary, Feed#%i%_e#%A_Index%_summary, `n, <br/>, All
-      text .= "e#" A_Index "_" field "=" Feed#%i%_e#%A_Index%_%field% "`n"
+        StringReplace, Feed#%i%_e#%j%_summary, Feed#%i%_e#%j%_summary, `n, <br/>, All
+      text .= "e#" j "_" field "=" Feed#%i%_e#%j%_%field% "`n"
     }
   }
 
