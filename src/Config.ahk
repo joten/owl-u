@@ -38,6 +38,26 @@ Config_init() {
   Config_feed#%i%_title := "Summary of new entries"
 }
 
+Config_blankFeedMemory() {
+  Local i
+
+  Loop, % Config_feedCount {
+    i := A_Index
+    Loop, % Feed#%i%_eCount {
+      Feed#%i%_e#%A_Index%_author  := ""
+      Feed#%i%_e#%A_Index%_flag    := ""
+      Feed#%i%_e#%A_Index%_link    := ""
+      Feed#%i%_e#%A_Index%_summary := ""
+      Feed#%i%_e#%A_Index%_title   := ""
+      Feed#%i%_e#%A_Index%_updated := ""
+    }
+    Feed#%i%_timestamp := 0
+    Feed#%i%_eCount := 0
+    Feed#%i%_unreadECount := 0
+  }
+  Config_feedCount := 0
+}
+
 Config_editIni() {
   Global Config_iniFilePath
 
@@ -51,44 +71,19 @@ Config_hotkeyLabel:
 Return
 
 Config_importFeedList() {
-  Local data, filename, i, pos1, pos2, pos3, pos4, type, xmlUrl, xmlUrlExist
+  Local data, filename, htmlUrl, pos1, pos4, title, xmlUrl, xmlUrlExist
 
   FileSelectFile, filename, 3, , %NAME% %VERSION% - Select file
   FileRead, data, %filename%
   If InStr(data, "</opml>") And InStr(data, "</body>") {
-    If Not FileExist(Config_iniFilePath) {
-      Loop, % Config_feedCount {
-        i := A_Index
-        Loop, % Feed#%i%_eCount {
-          Feed#%i%_e#%A_Index%_author  := ""
-          Feed#%i%_e#%A_Index%_flag    := ""
-          Feed#%i%_e#%A_Index%_link    := ""
-          Feed#%i%_e#%A_Index%_summary := ""
-          Feed#%i%_e#%A_Index%_title   := ""
-          Feed#%i%_e#%A_Index%_updated := ""
-        }
-        Feed#%i%_timestamp := 0
-        Feed#%i%_eCount := 0
-        Feed#%i%_unreadECount := 0
-      }
-      Config_feedCount := 0
-    }
+    If Not FileExist(Config_iniFilePath)
+      Config_blankFeedMemory()
     pos4 := InStr(data, "<body")
     Loop {
       pos1 := InStr(data, "<outline", False, pos4)
       pos4 := InStr(data, "/>", False, pos1)
       If pos1 And pos4 {
-        pos2 := InStr(data, "type", False, pos1)
-        If pos2 And (pos2 < pos4)
-          type := SubStr(data, InStr(data, """", False, pos2) + 1, 3)
-        If Not InStr(type, "rss")
-          Continue
-        pos2 := InStr(data, "xmlUrl", False, pos1)
-        If pos2 And (pos2 < pos4) {
-          pos3 := InStr(data, """", False, pos2) + 1
-          xmlUrl := SubStr(data, pos3, InStr(data, """", False, pos3) - pos3)
-        }
-        If Not xmlUrl
+        If Not Config_parseOpmlEntry(data, pos1, pos4, xmlUrl, htmlUrl, title)
           Continue
         xmlUrlExist := False
         Loop, % Config_feedCount
@@ -101,23 +96,45 @@ Config_importFeedList() {
 
         Config_feedCount += 1
         Config_feed#%Config_feedCount%_cacheId := Feed_getCacheId(xmlUrl)
-        Config_feed#%Config_feedCount%_xmlUrl := xmlUrl
-        pos2 := InStr(data, "htmlUrl", False, pos1)
-        If pos2 And (pos2 < pos4) {
-          pos3 := InStr(data, """", False, pos2) + 1
-          Config_feed#%Config_feedCount%_htmlUrl := SubStr(data, pos3, InStr(data, """", False, pos3) - pos3)
-        }
-        pos2 := InStr(data, "title", False, pos1)
-        If pos2 And (pos2 < pos4) {
-          pos3 := InStr(data, """", False, pos2) + 1
-          Config_feed#%Config_feedCount%_title := SubStr(data, pos3, InStr(data, """", False, pos3) - pos3)
-        }
+        Config_feed#%Config_feedCount%_xmlUrl  := xmlUrl
+        Config_feed#%Config_feedCount%_htmlUrl := htmlUrl
+        Config_feed#%Config_feedCount%_title   := title
         Feed_init(Config_feedCount)
       } Else
         Break
     }
     Config_writeIni()
   }
+}
+
+Config_parseOpmlEntry(data, pos1, pos4, ByRef xmlUrl, ByRef htmlUrl, ByRef title) {
+  pos2 := InStr(data, "type", False, pos1)
+  If pos2 And (pos2 < pos4)
+    type := SubStr(data, InStr(data, """", False, pos2) + 1, 3)
+  If Not InStr(type, "rss")
+    Return, False
+
+  pos2 := InStr(data, "xmlUrl", False, pos1)
+  If pos2 And (pos2 < pos4) {
+    pos3 := InStr(data, """", False, pos2) + 1
+    xmlUrl := SubStr(data, pos3, InStr(data, """", False, pos3) - pos3)
+  }
+  If Not xmlUrl
+    Return, False
+
+  pos2 := InStr(data, "htmlUrl", False, pos1)
+  If pos2 And (pos2 < pos4) {
+    pos3 := InStr(data, """", False, pos2) + 1
+    htmlUrl := SubStr(data, pos3, InStr(data, """", False, pos3) - pos3)
+  }
+
+  pos2 := InStr(data, "title", False, pos1)
+  If pos2 And (pos2 < pos4) {
+    pos3 := InStr(data, """", False, pos2) + 1
+    title := SubStr(data, pos3, InStr(data, """", False, pos3) - pos3)
+  }
+
+  Return, True
 }
 
 Config_readIni() {
