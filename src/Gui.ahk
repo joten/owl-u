@@ -4,12 +4,11 @@
    License: GNU General Public License version 3 (GPLv3)
 */
 
-/**
- *  Gui#1: Title bar ==================================================================================================================
- *  Gui#2: ListBox containing either the configured feeds or the entries of the selected feed
- *  Gui#3: Embedded Internet Explorer showing the quick help, the summary (abstract) or the link target (article) of the selected entry
- *  Gui#4: Status bar =================================================================================================================
- */
+/* Gui#1: Title bar ==================================================================================================================
+   Gui#2: ListBox containing either the configured feeds or the entries of the selected feed
+   Gui#3: Embedded Internet Explorer showing the quick help, the summary (abstract) or the link target (article) of the selected entry
+   Gui#4: Status bar =================================================================================================================
+*/
 
 Gui_init() {
   Global Config_iniFilePath, Config_reloadTime, Config_windowHeight, Config_windowWidth
@@ -145,13 +144,13 @@ GUI_createMainWindow(w, h) {
     Gui, Add, ListBox, +0x100 AltSubmit Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
 
     Gui Add, ActiveX, x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
-    Gui#3.silent := True              ; disable annoying script errors from the page
+    Gui#3.silent := True      ;; Disable annoying script errors from the page
     Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
   } Else {
     Gui, Add, ListBox, +0x100 AltSubmit W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
 
     Gui Add, ActiveX, Disabled Hidden x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
-    Gui#3.silent := True              ; disable annoying script errors from the page
+    Gui#3.silent := True      ;; Disable annoying script errors from the page
     Gui#3.Navigate("about:blank")
   }
   Gui, Add, StatusBar, vGui#4, Initializing ...
@@ -498,7 +497,7 @@ Gui_toggleSourceView() {
 
   If (Gui_a = 4) {
     Main_getFeedEntryIndices(Gui_aE, f, e)
-    ; "" -> "regex" -> "body" -> "text"
+    ;; "" -> "regex" -> "body" -> "text"
     If (Gui_f#%f%_htmlSource = "")
       Gui_f#%f%_htmlSource := "regex"
     Else If (Gui_f#%f%_htmlSource = "regex")
