@@ -515,7 +515,7 @@ Feed_save(i) {
   Local field, filename, j, text
 
   filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\entries.ini"
-  text := ";; " NAME " v" VERSION " -- " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
+  text := ";; " NAME " " VERSION " -- " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
 
   text .= "timestamp=" Feed#%i%_timestamp "`n"
   text .= "eCount=" Feed#%i%_eCount "`n"

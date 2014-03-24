@@ -17,7 +17,7 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-NAME  := "owl-u"
+NAME    := "owl-u"
 VERSION := "0.4.0"
 
 ;; Script settings

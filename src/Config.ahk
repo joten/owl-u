@@ -73,7 +73,7 @@ Return
 Config_importFeedList() {
   Local data, filename, htmlUrl, pos1, pos4, title, xmlUrl, xmlUrlExist
 
-  FileSelectFile, filename, 3, , %NAME% %VERSION% - Select file
+  FileSelectFile, filename, 3, , %NAME% %VERSION% -- Select file
   FileRead, data, %filename%
   If InStr(data, "</opml>") And InStr(data, "</body>") {
     If Not FileExist(Config_iniFilePath)
