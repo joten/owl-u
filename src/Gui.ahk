@@ -92,14 +92,7 @@ Gui_createHtAbstract() {
 Gui_createHtArticle() {
   Local body, charset, e, f, filename, ht
 
-  If (Gui_aF = Config_feedCount + 1) {
-    f := Feed#%Gui_aF%_e#%Gui_aE%_f
-    e := Feed#%Gui_aF%_e#%Gui_aE%_e
-  } Else {
-    f := Gui_aF
-    e := Gui_aE
-  }
-
+  Main_getFeedEntryIndices(Gui_aE, f, e)
   If Gui_f#%f%_htmlSource {
     filename := GUI_getHtmlFile(f, e)
     FileRead, ht, %filename%
@@ -492,10 +485,7 @@ Gui_toggleSourceView() {
   Global
 
   If (Gui_a = 4) {
-    If (Gui_aF = Config_feedCount + 1)
-      f := Feed#%Gui_aF%_e#%Gui_aE%_f
-    Else
-      f := Gui_aF
+    Main_getFeedEntryIndices(Gui_aE, f, e)
     ; "" -> "regex" -> "body" -> "text"
     If (Gui_f#%f%_htmlSource = "")
       Gui_f#%f%_htmlSource := "regex"

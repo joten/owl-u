@@ -102,30 +102,30 @@ Main_download() {
     MsgBox, 8225, %NAME% %VERSION% - Download articles, % "Download all articles from """ Config_feed#%Gui_aF%_title """?"
     IfMsgBox OK
       Loop, % Feed#%Gui_aF%_eCount {
-        If (Gui_aF = Config_feedCount + 1) {
-          f := Feed#%Gui_aF%_e#%A_Index%_f
-          e := Feed#%Gui_aF%_e#%A_Index%_e
-        } Else {
-          f := Gui_aF
-          e := Gui_aE
-        }
+        Main_getFeedEntryIndices(A_Index, f, e)
         SB_SetText("Downloading article " e "/" Feed#%f%_eCount " from """ Config_feed#%f%_title """ ...")
         Feed_downloadArticle(f, e)
       }
   } Else {
     If (Gui_a = 2)
       GuiControlGet, Gui_aE, , Gui#2
-    If (Gui_aF = Config_feedCount + 1) {
-      f := Feed#%Gui_aF%_e#%Gui_aE%_f
-      e := Feed#%Gui_aF%_e#%Gui_aE%_e
-    } Else {
-      f := Gui_aF
-      e := Gui_aE
-    }
+    Main_getFeedEntryIndices(Gui_aE, f, e)
     SB_SetText("Downloading article " e " from """ Config_feed#%f%_title """ ...")
     Feed_downloadArticle(f, e)
   }
   SB_SetText("")
+}
+
+Main_getFeedEntryIndices(j, ByRef f, ByRef e) {
+  Global
+
+  If (Gui_aF = Config_feedCount + 1) {
+    f := Feed#%Gui_aF%_e#%j%_f
+    e := Feed#%Gui_aF%_e#%j%_e
+  } Else {
+    f := Gui_aF
+    e := Gui_aE
+  }
 }
 
 Main_importFeedList() {
@@ -260,13 +260,7 @@ Main_toggleDeleteMark() {
   If (Gui_a > 1) {
     If (Gui_a = 2)
       GuiControlGet, Gui_aE, , Gui#2
-    If (Gui_aF = Config_feedCount + 1) {
-      f := Feed#%Gui_aF%_e#%Gui_aE%_f
-      e := Feed#%Gui_aF%_e#%Gui_aE%_e
-    } Else {
-      f := Gui_aF
-      e := Gui_aE
-    }
+    Main_getFeedEntryIndices(Gui_aE, f, e)
     If InStr(Feed#%f%_delete, ";" e ";") {
       StringReplace, Feed#%f%_delete, Feed#%f%_delete, %e%`;,
       Main_markEntry(f, e, " ")
