@@ -164,6 +164,26 @@ Feed_downloadToFile(i, filename) {
     UrlDownloadToFile, %url%, %filename%
 }
 
+Feed_filterHtmlPage(i, data) {
+  Global
+
+  If Config_feed#%i%_htmlSource {
+    StringReplace, data, data, `r`n, , All
+    StringReplace, data, data, `n, , All
+    If (Config_feed#%i%_htmlSource = "body" Or Config_feed#%i%_htmlSource = "text") {
+      data := RegExReplace(data, ".*<body.*?>(.*)</body>.*", "$1")
+      Loop, % Config_feed#%i%_needleRegExCount
+        data := RegExReplace(data, Config_feed#%i%_needleRegEx#%A_Index%, Config_feed#%i%_replacement#%A_Index%)
+      If (Config_feed#%i%_htmlSource = "text")
+        data := GUI_convertHtmlToText(data)
+    } Else
+      Loop, % Config_feed#%i%_needleRegExCount
+        data := RegExReplace(data, Config_feed#%i%_needleRegEx#%A_Index%, Config_feed#%i%_replacement#%A_Index%)
+  }
+
+  Return, data
+}
+
 Feed_getCacheId(string, replacement = "") {
   If replacement
     StringReplace, string, string, %replacement%,
@@ -268,29 +288,6 @@ Feed_moveUpperEntries(i, p) {
 Feed_parseEntry(i, data) {
   Local filter, id, j, nCount, updated
 
-  If Config_feed#%i%_htmlSource {
-    StringReplace, data, data, `r`n, , All
-    StringReplace, data, data, `n, , All
-    If (Config_feed#%i%_htmlSource = "body" Or Config_feed#%i%_htmlSource = "text") {
-      data := RegExReplace(data, ".*<body.*?>(.*)</body>.*", "$1")
-      Loop, % Config_feed#%i%_needleRegExCount
-        data := RegExReplace(data, Config_feed#%i%_needleRegEx#%A_Index%, Config_feed#%i%_replacement#%A_Index%)
-      If (Config_feed#%i%_htmlSource = "text") {
-        data := RegExReplace(data, "<form.+?</form>")
-        data := RegExReplace(data, "<object.+?</object>")
-        data := RegExReplace(data, "<script.+?</script>")
-        data := RegExReplace(data, "<style.+?</style>")
-
-        data := RegExReplace(data, "</?div.*?>")
-        data := RegExReplace(data, "<img .+?>")
-        data := RegExReplace(data, "<!--.+?-->")
-        data := "<div class=""fixed-width"">" data "</div>"
-      }
-    } Else
-      Loop, % Config_feed#%i%_needleRegExCount
-        data := RegExReplace(data, Config_feed#%i%_needleRegEx#%A_Index%, Config_feed#%i%_replacement#%A_Index%)
-  }
-
   Feed#N%i%_eCount := 0
   FormatTime, updated
   If (SubStr(Config_feed#%i%_xmlUrl, 1, 6) = "mua://") {
@@ -311,7 +308,8 @@ Feed_parseEntry(i, data) {
       }
     }
   } Else {
-    data := SubStr(data, 1, 4096)
+    data := Feed_filterHtmlPage(i, data)
+    data := SubStr(data, 1, 4096)     ;; @TODO: Is there a technical reason for that limit (4096)?
     If Not (data = Feed#%i%_e#1_summary) {
       Feed#N%i%_eCount := 1
       Feed#N%i%_e#1_link := Config_feed#%i%_htmlUrl
