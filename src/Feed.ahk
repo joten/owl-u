@@ -193,6 +193,25 @@ Feed_getCacheId(string, replacement = "") {
   Return, string
 }
 
+Feed_getTagNames(data, ByRef feedTag, ByRef entryTag, ByRef summaryTag, ByRef updatedTag) {
+  If InStr(data, "</feed>") And InStr(data, "</entry>") {
+    feedTag    := "feed"
+    entryTag   := "entry"
+    summaryTag := "summary"
+    updatedTag := "updated"
+  } Else If InStr(data, "</rss>") And InStr(data, "</item>") {
+    feedTag    := "rss"
+    entryTag   := "item"
+    summaryTag := "description"
+    updatedTag := "pubDate"
+  } Else If InStr(data, "</rdf:RDF>") And InStr(data, "</item>") {
+    feedTag    := "rdf:RDF"
+    entryTag   := "item"
+    summaryTag := "description"
+    updatedTag := "dc:date"
+  }
+}
+
 Feed_getTimestamp(str) {
   static e2 = "i)(?:(\d{1,2}+)[\s\.\-\/,]+)?(\d{1,2}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*)[\s\.\-\/,]+(\d{2,4})"
   str := RegExReplace(str, "((?:" . SubStr(e2, 42, 47) . ")\w*)(\s*)(\d{1,2})\b", "$3$2$1", "", 1)
@@ -324,24 +343,9 @@ Feed_parseEntry(i, data) {
 }
 
 Feed_parseEntries(i, data) {
-  Local entryTag, feedTag, link, n = 0, pos1, pos2, pos3, pos4, summary, summaryTag, timestamp, title, updated, updatedTag
+  Local entryTag, feedTag, link, n = 0, pos1, pos4, summary, summaryTag, timestamp, updated, updatedTag
 
-  If InStr(data, "</feed>") And InStr(data, "</entry>") {
-    feedTag    := "feed"
-    entryTag   := "entry"
-    summaryTag := "summary"
-    updatedTag := "updated"
-  } Else If InStr(data, "</rss>") And InStr(data, "</item>") {
-    feedTag    := "rss"
-    entryTag   := "item"
-    summaryTag := "description"
-    updatedTag := "pubDate"
-  } Else If InStr(data, "</rdf:RDF>") And InStr(data, "</item>") {
-    feedTag    := "rdf:RDF"
-    entryTag   := "item"
-    summaryTag := "description"
-    updatedTag := "dc:date"
-  }
+  Feed_getTagNames(data, feedTag, entryTag, summaryTag, updatedTag)
   Feed#N%i%_timestamp := Feed#%i%_timestamp
   pos1 := InStr(data, "<" feedTag)
   If InStr(data, "</" feedTag ">") And InStr(data, "</" entryTag ">")
@@ -349,42 +353,9 @@ Feed_parseEntries(i, data) {
       pos1 := InStr(data, "<" entryTag, False, pos1)
       pos4 := InStr(data, "</" entryTag ">", False, pos1)
       If pos1 And pos4 And (n < Config_maxItems) {
-        pos2 := InStr(data, "<link", False, pos1)
-        If (feedTag = "feed" And entryTag = "entry") {
-          If pos2 And (pos2 < pos4) {
-            pos2 := InStr(data, "href", False, pos2)
-            pos2 := InStr(data, """", False, pos2) + 1
-            link := SubStr(data, pos2, InStr(data, """", False, pos2) - pos2)
-          }
-        } Else {
-          pos3 := InStr(data, "</link>", False, pos2)
-          If pos2 And pos3 And (pos3 < pos4) {
-            pos2 := InStr(data, ">", False, pos2) + 1
-            link := SubStr(data, pos2, pos3 - pos2)
-          }
-        }
-
-        pos2 := InStr(data, "<" summaryTag, False, pos1)
-        pos3 := InStr(data, "</" summaryTag ">", False, pos2)
-        If pos2 And pos3 And (pos3 < pos4) {
-          pos2 := InStr(data, ">", False, pos2) + 1
-          summary := SubStr(data, pos2, pos3 - pos2)
-          If RegExMatch(summary, "&lt;/[a-zA-Z]+&gt;")
-            summary := Feed_decodeHtmlChar(summary)
-          summary := RegExReplace(summary, "<img [^>]+>")
-          StringReplace, summary, summary, ]]>, , All
-        }
-
-        pos2 := InStr(data, "<" updatedTag, False, pos1)
-        pos3 := InStr(data, "</" updatedTag ">", False, pos2)
-        If pos2 And pos3 And (pos3 < pos4) {
-          pos2 := InStr(data, ">", False, pos2) + 1
-          updated := SubStr(data, pos2, pos3 - pos2)
-        } Else If (feedTag = "rss" And entryTag = "item" And InStr(summary, "Posted: ")) {
-          updated := RegExReplace(summary, ".*Posted: ")
-          updated := RegExReplace(updated, "\R.*")
-          updated := RegExReplace(updated, "<.*")
-        }
+        link    := Feed_parseEntryLink(data, pos1, pos4, feedTag, entryTag)
+        summary := Feed_parseEntrySummary(data, pos1, pos4, summaryTag)
+        updated := Feed_parseEntryUpdate(data, pos1, pos4, updatedTag, feedTag, entryTag, summary)
 
         timestamp := Feed_getTimestamp(updated)
         If (timestamp <= Feed#%i%_timestamp Or link = Feed#%i%_e#1_link)
@@ -398,22 +369,8 @@ Feed_parseEntries(i, data) {
           Feed#N%i%_e#%n%_updated := updated
         }
 
-        pos2 := InStr(data, "<author", False, pos1)
-        pos3 := InStr(data, "</author>", False, pos2)
-        If pos2 And pos3 And (pos3 < pos4) {
-          pos2 := InStr(data, ">", False, pos2) + 1
-          Feed#N%i%_e#%n%_author := SubStr(data, pos2, pos3 - pos2)
-        }
-
-        pos2 := InStr(data, "<title", False, pos1)
-        pos3 := InStr(data, "</title>", False, pos2)
-        If pos2 And pos3 And (pos3 < pos4) {
-          pos2 := InStr(data, ">", False, pos2) + 1
-          title := SubStr(data, pos2, pos3 - pos2)
-          StringReplace, title, title, <![CDATA[, , All
-          StringReplace, title, title, ]]>, , All
-          Feed#N%i%_e#%n%_title := Feed_decodeHtmlChar(title)
-        }
+        Feed#N%i%_e#%n%_author := Feed_parseEntryAuthor(data, pos1, pos4)
+        Feed#N%i%_e#%n%_title  := Feed_parseEntryTitle(data, pos1, pos4)
 
         pos1 := pos4
       } Else
@@ -421,6 +378,80 @@ Feed_parseEntries(i, data) {
     }
 
   Feed#N%i%_eCount := n
+}
+
+Feed_parseEntryAuthor(data, pos1, pos4) {
+  pos2 := InStr(data, "<author", False, pos1)
+  pos3 := InStr(data, "</author>", False, pos2)
+  If pos2 And pos3 And (pos3 < pos4) {
+    pos2 := InStr(data, ">", False, pos2) + 1
+    author := SubStr(data, pos2, pos3 - pos2)
+  }
+
+  Return, author
+}
+
+Feed_parseEntryLink(data, pos1, pos4, feedTag, entryTag) {
+  pos2 := InStr(data, "<link", False, pos1)
+  If (feedTag = "feed" And entryTag = "entry") {
+    If pos2 And (pos2 < pos4) {
+      pos2 := InStr(data, "href", False, pos2)
+      pos2 := InStr(data, """", False, pos2) + 1
+      link := SubStr(data, pos2, InStr(data, """", False, pos2) - pos2)
+    }
+  } Else {
+    pos3 := InStr(data, "</link>", False, pos2)
+    If pos2 And pos3 And (pos3 < pos4) {
+      pos2 := InStr(data, ">", False, pos2) + 1
+      link := SubStr(data, pos2, pos3 - pos2)
+    }
+  }
+
+  Return, link
+}
+
+Feed_parseEntrySummary(data, pos1, pos4, summaryTag) {
+  pos2 := InStr(data, "<" summaryTag, False, pos1)
+  pos3 := InStr(data, "</" summaryTag ">", False, pos2)
+  If pos2 And pos3 And (pos3 < pos4) {
+    pos2 := InStr(data, ">", False, pos2) + 1
+    summary := SubStr(data, pos2, pos3 - pos2)
+    If RegExMatch(summary, "&lt;/[a-zA-Z]+&gt;")
+      summary := Feed_decodeHtmlChar(summary)
+    summary := RegExReplace(summary, "<img [^>]+>")
+    StringReplace, summary, summary, ]]>, , All
+  }
+
+  Return, summary
+}
+
+Feed_parseEntryTitle(data, pos1, pos4) {
+  pos2 := InStr(data, "<title", False, pos1)
+  pos3 := InStr(data, "</title>", False, pos2)
+  If pos2 And pos3 And (pos3 < pos4) {
+    pos2 := InStr(data, ">", False, pos2) + 1
+    title := SubStr(data, pos2, pos3 - pos2)
+    StringReplace, title, title, <![CDATA[, , All
+    StringReplace, title, title, ]]>, , All
+    title := Feed_decodeHtmlChar(title)
+  }
+
+  Return, title
+}
+
+Feed_parseEntryUpdate(data, pos1, pos4, updatedTag, feedTag, entryTag, summary) {
+  pos2 := InStr(data, "<" updatedTag, False, pos1)
+  pos3 := InStr(data, "</" updatedTag ">", False, pos2)
+  If pos2 And pos3 And (pos3 < pos4) {
+    pos2 := InStr(data, ">", False, pos2) + 1
+    updated := SubStr(data, pos2, pos3 - pos2)
+  } Else If (feedTag = "rss" And entryTag = "item" And InStr(summary, "Posted: ")) {
+    updated := RegExReplace(summary, ".*Posted: ")
+    updated := RegExReplace(updated, "\R.*")
+    updated := RegExReplace(updated, "<.*")
+  }
+
+  Return, updated
 }
 
 Feed_readEncodedFile(filename) {
