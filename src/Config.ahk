@@ -5,7 +5,7 @@
 */
 
 Config_init() {
-  Local i, p, var, val
+  Local i
 
   Config_autoReload   := False
   Config_browser      := "C:\Program Files\Internet Explorer\iexplore.exe"
@@ -32,34 +32,7 @@ Config_init() {
 
     Config_feedCount := 1
   } Else
-    Loop, READ, %Config_iniFilePath%
-      If (SubStr(A_LoopReadLine, 1, 7) = "Config_") {
-        var := SubStr(A_LoopReadLine, 1, InStr(A_LoopReadLine, "=") - 1)
-        val := SubStr(A_LoopReadLine, InStr(A_LoopReadLine, "=") + 1)
-        If (SubStr(var, 1, 12) = "Config_feed_") {
-          var := SubStr(var, 13)
-          If (var = "xmlUrl")
-            Config_feedCount += 1
-          If (var = "needleRegEx") {
-            Config_feed#%Config_feedCount%_needleRegExCount += 1
-            i := Config_feed#%Config_feedCount%_needleRegExCount
-            Config_feed#%Config_feedCount%_needleRegEx#%i% := val
-          } Else If (var = "replacement")
-            Config_feed#%Config_feedCount%_replacement#%i% := val
-          Else
-            Config_feed#%Config_feedCount%_%var% := val
-        } Else If (var = "Config_hotkey") {
-          Config_hotkeyCount += 1
-          p := InStr(val, "::")
-          Config_hotkey#%Config_hotkeyCount%_key := SubStr(val, 1, p - 1)
-          Config_hotkey#%Config_hotkeyCount%_command := SubStr(val, p + 2)
-          If Not Config_hotkey#%Config_hotkeyCount%_command
-            Hotkey, % Config_hotkey#%Config_hotkeyCount%_key, Off
-          Else
-            Hotkey, % Config_hotkey#%Config_hotkeyCount%_key, Config_hotkeyLabel
-        } Else
-          %var% := val
-      }
+    Config_readIni()
 
   i := Config_feedCount + 1
   Config_feed#%i%_title := "Summary of new entries"
@@ -145,6 +118,39 @@ Config_importFeedList() {
     }
     Config_writeIni()
   }
+}
+
+Config_readIni() {
+  Local i, p, var, val
+
+  Loop, READ, %Config_iniFilePath%
+    If (SubStr(A_LoopReadLine, 1, 7) = "Config_") {
+      var := SubStr(A_LoopReadLine, 1, InStr(A_LoopReadLine, "=") - 1)
+      val := SubStr(A_LoopReadLine, InStr(A_LoopReadLine, "=") + 1)
+      If (SubStr(var, 1, 12) = "Config_feed_") {
+        var := SubStr(var, 13)
+        If (var = "xmlUrl")
+          Config_feedCount += 1
+        If (var = "needleRegEx") {
+          Config_feed#%Config_feedCount%_needleRegExCount += 1
+          i := Config_feed#%Config_feedCount%_needleRegExCount
+          Config_feed#%Config_feedCount%_needleRegEx#%i% := val
+        } Else If (var = "replacement")
+          Config_feed#%Config_feedCount%_replacement#%i% := val
+        Else
+          Config_feed#%Config_feedCount%_%var% := val
+      } Else If (var = "Config_hotkey") {
+        Config_hotkeyCount += 1
+        p := InStr(val, "::")
+        Config_hotkey#%Config_hotkeyCount%_key := SubStr(val, 1, p - 1)
+        Config_hotkey#%Config_hotkeyCount%_command := SubStr(val, p + 2)
+        If Not Config_hotkey#%Config_hotkeyCount%_command
+          Hotkey, % Config_hotkey#%Config_hotkeyCount%_key, Off
+        Else
+          Hotkey, % Config_hotkey#%Config_hotkeyCount%_key, Config_hotkeyLabel
+      } Else
+        %var% := val
+    }
 }
 
 Config_redirectHotkey(key) {
