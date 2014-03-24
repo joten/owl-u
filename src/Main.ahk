@@ -31,7 +31,7 @@ SetTitleMatchMode, fast
 #NoTrayIcon
 #SingleInstance force
 
-; pseudo main function
+;; Pseudo main function
   Suspend, On
   Main_dataDir = %1%
   Main_init()
@@ -57,7 +57,7 @@ SetTitleMatchMode, fast
   } Else
     Gui_navigate(0)
   Gui_resize()
-Return         ; end of the auto-execute section
+Return      ;; End of the auto-execute section
 
 ;; Function & label definitions
 Main_init() {
@@ -99,7 +99,7 @@ Main_download() {
 
   If (Gui_a = 1) {
     GuiControlGet, Gui_aF, , Gui#2
-    MsgBox, 8225, %NAME% %VERSION% - Download articles, % "Download all articles from """ Config_feed#%Gui_aF%_title """?"
+    MsgBox, 8225, %NAME% %VERSION% -- Download articles, % "Download all articles from """ Config_feed#%Gui_aF%_title """?"
     IfMsgBox OK
       Loop, % Feed#%Gui_aF%_eCount {
         Main_getFeedEntryIndices(A_Index, f, e)
