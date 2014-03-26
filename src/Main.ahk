@@ -155,13 +155,6 @@ Main_makeDir(dirName) {
   }
 }
 
-Main_markEntry(f, e, flag) {
-  Global
-
-  Feed#%f%_e#%e%_flag := flag
-  GUI_markEntry(f, e, flag)
-}
-
 Main_markEntryRead() {
   Local e, f
 
@@ -253,34 +246,43 @@ Main_toggleDeleteMark() {
     Main_getFeedEntryIndices(Gui_aE, f, e)
     If InStr(Feed#%f%_delete, ";" e ";") {
       StringReplace, Feed#%f%_delete, Feed#%f%_delete, %e%`;,
-      Main_markEntry(f, e, " ")
-      If (Gui_aF = Config_feedCount + 1)
-        Main_markEntry(Gui_aF, Gui_aE, " ")
+      Feed#%f%_e#%e%_flag := " "
+      GUI_markEntry(f, e, " ")
+      If (Gui_aF = Config_feedCount + 1) {
+        Feed#%Gui_aF%_e#%Gui_aE%_flag := " "
+        GUI_markEntry(Gui_aF, Gui_aE, " ")
+      }
     } Else {
       If (Feed#%f%_e#%e%_flag = "N")
         Feed#%f%_unreadECount -= 1
       Feed#%f%_delete .= e ";"
-      Main_markEntry(f, e, "D")
-      If (Gui_aF = Config_feedCount + 1)
-        Main_markEntry(Gui_aF, Gui_aE, "D")
+      Feed#%f%_e#%e%_flag := "D"
+      GUI_markEntry(f, e, "D")
+      If (Gui_aF = Config_feedCount + 1) {
+        Feed#%Gui_aF%_e#%Gui_aE%_flag := "D"
+        GUI_markEntry(Gui_aF, Gui_aE, "D")
+      }
     }
     GUI_setEntryList()
   }
 }
 
 Main_toggleUnreadMark() {
-  Local f
+  Local e, f
 
   If (Gui_a > 1) {
     If (Gui_a = 2)
       GuiControlGet, Gui_aE, , Gui#2
     If (Feed#%Gui_aF%_e#%Gui_aE%_flag = " ") {
       Feed#%Gui_aF%_unreadECount += 1
-      Main_markEntry(Gui_aF, Gui_aE, "N")
+      Feed#%Gui_aF%_e#%Gui_aE%_flag := "N"
+      GUI_markEntry(Gui_aF, Gui_aE, "N")
       If (Gui_aF = Config_feedCount + 1) {
         f := Feed#%Gui_aF%_e#%Gui_aE%_f
+        e := Feed#%Gui_aF%_e#%Gui_aE%_e
         Feed#%f%_unreadECount += 1
-        Main_markEntry(f, Feed#%Gui_aF%_e#%Gui_aE%_e, "N")
+        Feed#%f%_e#%e%_flag := "N"
+        GUI_markEntry(f, e, "N")
       }
     } Else
       Main_markEntryRead()
