@@ -42,7 +42,7 @@ Config_blankFeedMemory() {
   Global
 
   Loop, % Config_feedCount
-    Feed_blankMemory(A_Index)
+    List_blankMemory("Feed", A_Index)
   Config_feedCount := 0
 }
 

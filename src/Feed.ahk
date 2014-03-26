@@ -5,7 +5,7 @@
 */
 
 Feed_init(i) {
-  Local filename, j, k, var, val
+  Local filename
 
   If (i = Config_feedCount + 1)
     Feed_initSummary(i)
@@ -17,21 +17,7 @@ Feed_init(i) {
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId
     Main_makeDir(filename)
     filename .= "\entries.ini"
-    If FileExist(filename)
-      Loop, READ, %filename%
-        If (SubStr(A_LoopReadLine, 1, 2) = "e#" Or SubStr(A_LoopReadLine, 1, 6) = "eCount" Or SubStr(A_LoopReadLine, 1, 9) = "timestamp"
-        Or SubStr(A_LoopReadLine, 1, 12) = "unreadECount") {
-          var := SubStr(A_LoopReadLine, 1, InStr(A_LoopReadLine, "=") - 1)
-          val := SubStr(A_LoopReadLine, InStr(A_LoopReadLine, "=") + 1)
-          Feed#%i%_%var% := val
-        }
-    If Not Feed#%i%_timestamp
-      Feed#%i%_timestamp := 0
-    If Not Feed#%i%_eCount
-      Feed#%i%_eCount := 0
-    If Not Feed#%i%_unreadECount
-      Feed#%i%_unreadECount := 0
-    Feed#%i%_delete := ";"
+    List_init("Feed", i, filename)
   }
 }
 
@@ -56,21 +42,6 @@ Feed_initSummary(i) {
   }
   Feed#%i%_eCount := j
   Feed#%i%_unreadECount := j
-}
-
-Feed_blankMemory(i) {
-  Local field, j
-
-  Loop, % Feed#%i%_eCount {
-    j := A_Index
-    Loop, % Feed_entryField_#0 {
-      field := Feed_entryField_#%A_Index%
-      Feed#%i%_e#%j%_%field% := ""
-    }
-  }
-  Feed#%i%_timestamp    := 0
-  Feed#%i%_eCount       := 0
-  Feed#%i%_unreadECount := 0
 }
 
 Feed_decodeHtmlChar(text) {
@@ -112,17 +83,6 @@ Feed_decodeHtmlChar(text) {
   }
 
   Return, text
-}
-
-Feed_deleteLastEntry(i) {
-  Local field, j
-
-  j := Feed#%i%_eCount
-  Loop, % Feed_entryField_#0 {
-    field := Feed_entryField_#%A_Index%
-    Feed#%i%_e#%j%_%field% := ""
-  }
-  Feed#%i%_eCount -= 1
 }
 
 Feed_downloadArticle(i, j) {
@@ -253,70 +213,6 @@ Feed_getTimestamp(str) {
   Return, d
 }
 ;; polyethene: Date parser - convert any date format to YYYYMMDDHH24MISS (http://www.autohotkey.net/~polyethene/#dateparse)
-
-Feed_moveDelEntries(i, d, m) {
-  Local field, j, k
-
-  Loop, % d {                   ;; Mark entries for deletion and move them behind the end of the list (backwards)
-    j := m + d - A_Index + 1
-    k := Config_maxItems + d - A_Index + 1
-    Feed#%i%_delete .= k ";"
-    Loop, % Feed_entryField_#0 {
-      field := Feed_entryField_#%A_Index%
-      Feed#%i%_e#%k%_%field% := Feed#%i%_e#%j%_%field%
-    }
-    Feed#%i%_e#%k%_flag := "D"
-  }
-}
-
-Feed_moveNewEntries(i, n) {
-  Local field, j
-
-  Loop, % Feed#N%i%_eCount {
-    j := A_Index
-    If (j <= n) {
-      Loop, % Feed_entryField_#0 {
-        field := Feed_entryField_#%A_Index%
-        Feed#%i%_e#%j%_%field% := Feed#N%i%_e#%j%_%field%
-      }
-      Feed#%i%_e#%j%_flag := "N"
-    }
-    Loop, % Feed_entryField_#0 {
-      field := Feed_entryField_#%j%
-      Feed#N%i%_e#%j%_%field% := ""
-    }
-  }
-}
-
-Feed_moveOldEntries(i, m, n) {
-  Local field, j, k, u = 0
-
-  Loop, % m {                   ;; Move the existing entries to the end (behind the new entries) of the list (backwards)
-    j := m - A_Index + 1
-    k := n + m - A_Index + 1
-    Loop, % Feed_entryField_#0 {
-      field := Feed_entryField_#%A_Index%
-      Feed#%i%_e#%k%_%field% := Feed#%i%_e#%j%_%field%
-      If (field = "flag" And Feed#%i%_e#%k%_flag = "N")
-        u += 1
-    }
-  }
-
-  Return, u
-}
-
-Feed_moveUpperEntries(i, p) {
-  Local field, j, k
-
-  Loop, % Feed#%i%_eCount - p {
-    j := p + A_Index
-    k := j - 1
-    Loop, % Feed_entryField_#0 {
-      field := Feed_entryField_#%A_Index%
-      Feed#%i%_e#%k%_%field% := Feed#%i%_e#%j%_%field%
-    }
-  }
-}
 
 Feed_parseEntry(i, data) {
   Local filter, id, j, nCount, updated
@@ -493,8 +389,7 @@ Feed_purgeDeleted(i) {
     filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
     FileMove, %filename%.htm, %filename%.tmp.htm
-    Feed_moveUpperEntries(i, A_LoopField)
-    Feed_deleteLastEntry(i)
+    List_removeItem("Feed", i, A_LoopField)
   }
   Feed#%i%_delete := ";"
 }
@@ -522,11 +417,11 @@ Feed_reload(i) {
         m := Feed#%i%_eCount
       Else
         d := Feed#%i%_eCount - m    ;; Number of old entries, to be deleted
-      Feed_moveDelEntries(i, d, m)
-      u := Feed_moveOldEntries(i, m, n)
+      List_moveDeletedItems("Feed", i, d, m)
+      u := List_moveOldItems("Feed", i, m, n)
     } Else If (n > Config_maxItems)
       n := Config_maxItems
-    Feed_moveNewEntries(i, n)
+    List_moveNewItems("Feed", i, n)
     StringReplace, Config_feed#%i%_title, Config_feed#%i%_title, % " [ERROR!]", , All
     Feed#%i%_timestamp := Feed#N%i%_timestamp
     Feed#%i%_eCount := n + m + d
@@ -541,28 +436,4 @@ Feed_reload(i) {
 
     Return, False
   }
-}
-
-Feed_save(i) {
-  Local field, filename, j, text
-
-  filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\entries.ini"
-  text := ";; " NAME " " VERSION " -- " Config_feed#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
-
-  text .= "timestamp=" Feed#%i%_timestamp "`n"
-  text .= "eCount=" Feed#%i%_eCount "`n"
-  text .= "unreadECount=" Feed#%i%_unreadECount "`n"
-  Loop, % Feed#%i%_eCount {
-    j := A_Index
-    text .= "`n"
-    Loop, % Feed_entryField_#0 {
-      field := Feed_entryField_#%A_Index%
-      If (field = "summary")
-        StringReplace, Feed#%i%_e#%j%_summary, Feed#%i%_e#%j%_summary, `n, <br/>, All
-      text .= "e#" j "_" field "=" Feed#%i%_e#%j%_%field% "`n"
-    }
-  }
-
-  FileDelete, %filename%
-  FileAppend, %text%, %filename%
 }

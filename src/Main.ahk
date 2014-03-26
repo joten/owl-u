@@ -38,8 +38,8 @@ SetTitleMatchMode, fast
   Config_init()
   Gui_init()
   Gui_resize()
-  Feed_entryFields := "author;flag;link;summary;title;updated"
-  StringSplit, Feed_entryField_#, Feed_entryFields, `;
+  List_Feed_itemFields := "author;flag;link;summary;title;updated"
+  StringSplit, List_Feed_itemField_#, List_Feed_itemFields, `;
   Loop, % Config_feedCount {
     SB_SetText("Loading feed (" A_Index "/" Config_feedCount "): """ Config_feed#%A_Index%_title """ ...")
     Feed_init(A_Index)
@@ -84,7 +84,7 @@ Main_cleanup:
   SB_SetText("Saving feed status ...")
   Loop, % Config_feedCount {
     Feed_purgeDeleted(A_Index)
-    Feed_save(A_Index)
+    List_save("Feed", A_Index, Feed_cacheDir "\" Config_feed#%A_Index%_cacheId "\entries.ini", Config_feed#%A_Index%_title)
   }
   ;; Feed cleanup
   SB_SetText("Cleaning up cache ...")
