@@ -158,15 +158,13 @@ Main_makeDir(dirName) {
 Main_markEntryRead() {
   Local e, f
 
-  If (Feed#%Gui_aF%_e#%Gui_aE%_flag = "N") {
-    Feed#%Gui_aF%_unreadECount -= 1
-    Feed#%Gui_aF%_e#%Gui_aE%_flag := " "
+  If List_itemHasFlag("Feed", Gui_aF, Gui_aE, "N") {
+    List_seenItem("Feed", Gui_aF, Gui_aE)
     GUI_markEntry(Gui_aF, Gui_aE, " ")
     If (Gui_aF = Config_feedCount + 1) {
       f := Feed#%Gui_aF%_e#%Gui_aE%_f
       e := Feed#%Gui_aF%_e#%Gui_aE%_e
-      Feed#%f%_unreadECount -= 1
-      Feed#%f%_e#%e%_flag := " "
+      List_seenItem("Feed", f, e)
       GUI_markEntry(f, e, " ")
     }
   }
@@ -179,20 +177,17 @@ Main_markFeedRead() {
     GuiControlGet, Gui_aE, , Gui#2
 
     Loop, % Feed#%Gui_aF%_eCount
-      If (Feed#%Gui_aF%_e#%A_Index%_flag = "N") {
-        Feed#%Gui_aF%_e#%A_Index%_flag := " "
+      If List_itemHasFlag("Feed", Gui_aF, A_Index, "N") {
+        List_seenItem("Feed", Gui_aF, A_Index)
         If (Gui_aF = Config_feedCount + 1) {
           f := Feed#%Gui_aF%_e#%A_Index%_f
           e := Feed#%Gui_aF%_e#%A_Index%_e
-          Feed#%f%_e#%e%_flag := " "
+          List_seenItem("Feed", f, e)
         }
       }
-    Feed#%Gui_aF%_unreadECount := 0
     If (Gui_aF = Config_feedCount + 1)
-      Loop, % Config_feedCount {
-        Feed#%A_Index%_unreadECount := 0
+      Loop, % Config_feedCount
         Gui_loadEntryList(A_Index)
-      }
 
     Gui_loadEntryList(Gui_aF)
     GUI_setEntryList()
@@ -250,22 +245,20 @@ Main_toggleDeleteMark() {
     If (Gui_a = 2)
       GuiControlGet, Gui_aE, , Gui#2
     Main_getFeedEntryIndices(Gui_aE, f, e)
-    If InStr(Feed#%f%_delete, ";" e ";") {
-      StringReplace, Feed#%f%_delete, Feed#%f%_delete, %e%`;,
-      Feed#%f%_e#%e%_flag := " "
+    If List_itemHasFlag("Feed", f, e, "D") {
+      List_undeleteItem("Feed", f, e)
       GUI_markEntry(f, e, " ")
       If (Gui_aF = Config_feedCount + 1) {
-        Feed#%Gui_aF%_e#%Gui_aE%_flag := " "
+        List_changeItemFlag("Feed", Gui_aF, Gui_aE, " ")
         GUI_markEntry(Gui_aF, Gui_aE, " ")
       }
     } Else {
-      If (Feed#%f%_e#%e%_flag = "N")
-        Feed#%f%_unreadECount -= 1
-      Feed#%f%_delete .= e ";"
-      Feed#%f%_e#%e%_flag := "D"
+      If List_itemHasFlag("Feed", f, e, "N")
+        List_seenItem("Feed", f, e)
+      List_deleteItem("Feed", f, e)
       GUI_markEntry(f, e, "D")
       If (Gui_aF = Config_feedCount + 1) {
-        Feed#%Gui_aF%_e#%Gui_aE%_flag := "D"
+        List_changeItemFlag("Feed", Gui_aF, Gui_aE, "D")
         GUI_markEntry(Gui_aF, Gui_aE, "D")
       }
     }
@@ -279,15 +272,13 @@ Main_toggleUnreadMark() {
   If (Gui_a > 1) {
     If (Gui_a = 2)
       GuiControlGet, Gui_aE, , Gui#2
-    If (Feed#%Gui_aF%_e#%Gui_aE%_flag = " ") {
-      Feed#%Gui_aF%_unreadECount += 1
-      Feed#%Gui_aF%_e#%Gui_aE%_flag := "N"
+    If List_itemHasFlag("Feed", Gui_aF, Gui_aE, " ") {
+      List_unseenItem("Feed", Gui_aF, Gui_aE)
       GUI_markEntry(Gui_aF, Gui_aE, "N")
       If (Gui_aF = Config_feedCount + 1) {
         f := Feed#%Gui_aF%_e#%Gui_aE%_f
         e := Feed#%Gui_aF%_e#%Gui_aE%_e
-        Feed#%f%_unreadECount += 1
-        Feed#%f%_e#%e%_flag := "N"
+        List_unseenItem("Feed", f, e)
         GUI_markEntry(f, e, "N")
       }
     } Else
@@ -302,3 +293,4 @@ Main_toggleUnreadMark() {
 #Include Config.ahk
 #Include Feed.ahk
 #Include Gui.ahk
+#Include List.ahk
