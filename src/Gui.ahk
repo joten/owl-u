@@ -93,7 +93,7 @@ Gui_createHtArticle() {
 
   Main_getFeedEntryIndices(Gui_aE, f, e)
   If Gui_f#%f%_htmlSource {
-    filename := GUI_getHtmlFile(f, e)
+    filename := Feed_getHtmlFile(f, e)
     FileRead, ht, %filename%
     StringReplace, ht, ht, `r`n, , All
     StringReplace, ht, ht, `n, , All
@@ -211,23 +211,6 @@ GUI_getHtmlCharset(s) {
     charset := "utf-8"
 
   Return, charset
-}
-
-GUI_getHtmlFile(i, j) {
-  Local filename, url
-
-  url := Feed#%i%_e#%j%_link
-  filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
-  filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
-  If FileExist(filename ".htm")
-    filename .= ".htm"
-  Else {
-    filename .= ".tmp.htm"
-    If Not FileExist(filename)
-      UrlDownloadToFile, %url%, %filename%
-  }
-
-  Return, filename
 }
 
 GUI_getMarkedItem(d, mark) {

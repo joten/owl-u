@@ -190,6 +190,23 @@ Feed_getCacheId(string, replacement = "") {
   Return, string
 }
 
+Feed_getHtmlFile(i, j) {
+  Local filename, url
+
+  url := Feed#%i%_e#%j%_link
+  filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
+  filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
+  If FileExist(filename ".htm")
+    filename .= ".htm"
+  Else {
+    filename .= ".tmp.htm"
+    If Not FileExist(filename)
+      UrlDownloadToFile, %url%, %filename%
+  }
+
+  Return, filename
+}
+
 Feed_getTagNames(data, ByRef feedTag, ByRef entryTag, ByRef summaryTag, ByRef updatedTag) {
   If InStr(data, "</feed>") And InStr(data, "</entry>") {
     feedTag    := "feed"
