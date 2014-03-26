@@ -274,16 +274,10 @@ Main_toggleUnreadMark() {
     If (Gui_a = 2)
       GuiControlGet, Gui_aE, , Gui#2
     If (Feed#%Gui_aF%_e#%Gui_aE%_flag = " ") {
-      Feed#%Gui_aF%_unreadECount += 1
-      Feed#%Gui_aF%_e#%Gui_aE%_flag := "N"
-      GUI_markEntry(Gui_aF, Gui_aE, "N")
-      If (Gui_aF = Config_feedCount + 1) {
-        f := Feed#%Gui_aF%_e#%Gui_aE%_f
-        e := Feed#%Gui_aF%_e#%Gui_aE%_e
-        Feed#%f%_unreadECount += 1
-        Feed#%f%_e#%e%_flag := "N"
-        GUI_markEntry(f, e, "N")
-      }
+      Main_getFeedEntryIndices(Gui_aE, f, e)
+      Feed#%f%_unreadECount += 1
+      Feed#%f%_e#%e%_flag := "N"
+      GUI_markEntry(f, e, "N")
     } Else
       Main_markEntryRead()
 
