@@ -58,22 +58,19 @@ Feed_initSummary(i) {
   Feed#%i%_unreadECount := j
 }
 
-Feed_purgeDeleted(i) {
-  Local filename
+Feed_blankMemory(i) {
+  Local field, j
 
-  ;; Delete entries from the deletion list `Feed#%i%_delete`
-  StringTrimLeft, Feed#%i%_delete, Feed#%i%_delete, 1
-  StringTrimRight, Feed#%i%_delete, Feed#%i%_delete, 1
-  Sort, Feed#%i%_delete, NRD`;
-  Loop, PARSE, Feed#%i%_delete, `;
-  {
-    filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)
-    filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
-    FileMove, %filename%.htm, %filename%.tmp.htm
-    Feed_moveUpperEntries(i, A_LoopField)
-    Feed_deleteLastEntry(i)
+  Loop, % Feed#%i%_eCount {
+    j := A_Index
+    Loop, % Feed_entryField_#0 {
+      field := Feed_entryField_#%A_Index%
+      Feed#%i%_e#%j%_%field% := ""
+    }
   }
-  Feed#%i%_delete := ";"
+  Feed#%i%_timestamp    := 0
+  Feed#%i%_eCount       := 0
+  Feed#%i%_unreadECount := 0
 }
 
 Feed_decodeHtmlChar(text) {
@@ -465,6 +462,24 @@ Feed_readEncodedFile(filename) {
     FileRead, data, *P28605 %filename%
 
   Return, data
+}
+
+Feed_purgeDeleted(i) {
+  Local filename
+
+  ;; Delete entries from the deletion list `Feed#%i%_delete`
+  StringTrimLeft, Feed#%i%_delete, Feed#%i%_delete, 1
+  StringTrimRight, Feed#%i%_delete, Feed#%i%_delete, 1
+  Sort, Feed#%i%_delete, NRD`;
+  Loop, PARSE, Feed#%i%_delete, `;
+  {
+    filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)
+    filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
+    FileMove, %filename%.htm, %filename%.tmp.htm
+    Feed_moveUpperEntries(i, A_LoopField)
+    Feed_deleteLastEntry(i)
+  }
+  Feed#%i%_delete := ";"
 }
 
 Feed_reload(i) {

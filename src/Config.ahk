@@ -39,22 +39,10 @@ Config_init() {
 }
 
 Config_blankFeedMemory() {
-  Local i
+  Global
 
-  Loop, % Config_feedCount {
-    i := A_Index
-    Loop, % Feed#%i%_eCount {
-      Feed#%i%_e#%A_Index%_author  := ""
-      Feed#%i%_e#%A_Index%_flag    := ""
-      Feed#%i%_e#%A_Index%_link    := ""
-      Feed#%i%_e#%A_Index%_summary := ""
-      Feed#%i%_e#%A_Index%_title   := ""
-      Feed#%i%_e#%A_Index%_updated := ""
-    }
-    Feed#%i%_timestamp := 0
-    Feed#%i%_eCount := 0
-    Feed#%i%_unreadECount := 0
-  }
+  Loop, % Config_feedCount
+    Feed_blankMemory(A_Index)
   Config_feedCount := 0
 }
 
