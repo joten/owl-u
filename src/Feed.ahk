@@ -58,7 +58,7 @@ Feed_initSummary(i) {
   Feed#%i%_unreadECount := j
 }
 
-Feed_cleanup(i) {
+Feed_purgeDeleted(i) {
   Local filename
 
   ;; Delete entries from the deletion list `Feed#%i%_delete`
@@ -484,7 +484,7 @@ Feed_reload(i) {
       Feed_parseEntries(i, data)
     n := Feed#N%i%_eCount           ;; Number of new entries
     If (Feed#%i%_eCount And n < Config_maxItems) {
-      Feed_cleanup(i)
+      Feed_purgeDeleted(i)
       m := Config_maxItems - n      ;; Number of old entries, to be kept
       If (Feed#%i%_eCount < m)
         m := Feed#%i%_eCount

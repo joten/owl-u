@@ -83,9 +83,10 @@ Main_init() {
 Main_cleanup:
   SB_SetText("Saving feed status ...")
   Loop, % Config_feedCount {
-    Feed_cleanup(A_Index)
+    Feed_purgeDeleted(A_Index)
     Feed_save(A_Index)
   }
+  ;; Feed cleanup
   SB_SetText("Cleaning up cache ...")
   FileDelete, %Feed_cacheDir%\*.tmp.htm
   FileDelete, %Feed_cacheDir%\*.tmp.xml
