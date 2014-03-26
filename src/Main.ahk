@@ -156,13 +156,16 @@ Main_makeDir(dirName) {
 }
 
 Main_markEntryRead() {
-  Local e, f
+  Local f
 
   If (Feed#%Gui_aF%_e#%Gui_aE%_flag = "N") {
-    Main_getFeedEntryIndices(Gui_aE, f, e)
-    Feed#%f%_unreadECount -= 1
-    Feed#%f%_e#%e%_flag := " "
-    GUI_markEntry(f, e, " ")
+    Feed#%Gui_aF%_unreadECount -= 1
+    Main_markEntry(Gui_aF, Gui_aE, " ")
+    If (Gui_aF = Config_feedCount + 1) {
+      f := Feed#%Gui_aF%_e#%Gui_aE%_f
+      Feed#%f%_unreadECount -= 1
+      Main_markEntry(f, Feed#%Gui_aF%_e#%Gui_aE%_e, " ")
+    }
   }
 }
 
