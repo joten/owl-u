@@ -291,6 +291,26 @@ GUI_IE_navigate(d) {
   }
 }
 
+GUI_isHelpView() {
+  Global Gui_a
+  Return, (Gui_a = 0)
+}
+
+GUI_isItemView() {
+  Global Gui_a
+  Return, (Gui_a = 2)
+}
+
+GUI_isListView() {
+  Global Gui_a
+  Return, (Gui_a = 1)
+}
+
+GUI_isSummaryView() {
+  Global Gui_aF, Config_feedCount
+  Return, (Gui_aF = Config_feedCount + 1)
+}
+
 Gui_loadEntryList(i) {
   Local title
 
@@ -414,6 +434,16 @@ GUI_setAbstractView() {
   StringReplace, dir, Feed_cacheDir, \, /, All
   Gui_createHtAbstract()
   Gui#3.Navigate("file:///" dir "/abstract.tmp.htm")
+}
+
+GUI_getSelectedItem() {
+  Global Gui_aE, Gui#2
+  GuiControlGet, Gui_aE, , Gui#2
+}
+
+GUI_getSelectedList() {
+  Global Gui_aF, Gui#2
+  GuiControlGet, Gui_aF, , Gui#2
 }
 
 GUI_setEntryList() {

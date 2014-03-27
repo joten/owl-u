@@ -98,8 +98,8 @@ ExitApp
 Main_download() {
   Local e, f
 
-  If (Gui_a = 1) {
-    GuiControlGet, Gui_aF, , Gui#2
+  If GUI_isListView() {
+    GUI_getSelectedList()
     MsgBox, 8225, %NAME% %VERSION% -- Download articles, % "Download all articles from """ Config_feed#%Gui_aF%_title """?"
     IfMsgBox OK
       Loop, % Feed#%Gui_aF%_eCount {
@@ -108,8 +108,8 @@ Main_download() {
         Feed_downloadArticle(f, e)
       }
   } Else {
-    If (Gui_a = 2)
-      GuiControlGet, Gui_aE, , Gui#2
+    If GUI_isItemView()
+      GUI_getSelectedItem()
     Main_getFeedEntryIndices(Gui_aE, f, e)
     SB_SetText("Downloading article " e " from """ Config_feed#%f%_title """ ...")
     Feed_downloadArticle(f, e)
@@ -120,7 +120,7 @@ Main_download() {
 Main_getFeedEntryIndices(j, ByRef f, ByRef e) {
   Global
 
-  If (Gui_aF = Config_feedCount + 1) {
+  If GUI_isSummaryView() {
     f := Feed#%Gui_aF%_e#%j%_f
     e := Feed#%Gui_aF%_e#%j%_e
   } Else {
@@ -130,11 +130,9 @@ Main_getFeedEntryIndices(j, ByRef f, ByRef e) {
 }
 
 Main_importFeedList() {
-  Global Gui_a
-
-  If (Gui_a < 2) {
+  If GUI_isHelpView() Or GUI_isListView() {
     Config_importFeedList()
-    If Not Gui_a
+    If GUI_isHelpView()
       Gui_navigate(-1)
     Else
       Gui_navigate(0)
@@ -161,7 +159,7 @@ Main_markEntryRead() {
   If List_itemHasFlag("Feed", Gui_aF, Gui_aE, "N") {
     List_seenItem("Feed", Gui_aF, Gui_aE)
     GUI_markEntry(Gui_aF, Gui_aE, " ")
-    If (Gui_aF = Config_feedCount + 1) {
+    If GUI_isSummaryView() {
       f := Feed#%Gui_aF%_e#%Gui_aE%_f
       e := Feed#%Gui_aF%_e#%Gui_aE%_e
       List_seenItem("Feed", f, e)
@@ -173,19 +171,19 @@ Main_markEntryRead() {
 Main_markFeedRead() {
   Local e, f
 
-  If (Gui_a = 2) {
-    GuiControlGet, Gui_aE, , Gui#2
+  If GUI_isItemView() {
+    GUI_getSelectedItem()
 
     Loop, % Feed#%Gui_aF%_eCount
       If List_itemHasFlag("Feed", Gui_aF, A_Index, "N") {
         List_seenItem("Feed", Gui_aF, A_Index)
-        If (Gui_aF = Config_feedCount + 1) {
+        If GUI_isSummaryView() {
           f := Feed#%Gui_aF%_e#%A_Index%_f
           e := Feed#%Gui_aF%_e#%A_Index%_e
           List_seenItem("Feed", f, e)
         }
       }
-    If (Gui_aF = Config_feedCount + 1)
+    If GUI_isSummaryView()
       Loop, % Config_feedCount
         Gui_loadEntryList(A_Index)
 
@@ -197,10 +195,10 @@ Main_markFeedRead() {
 Main_reloadFeed() {
   Global
 
-  If (Gui_a = 1) {
+  If GUI_isListView() {
     Suspend, On
-    GuiControlGet, Gui_aF, , Gui#2
-    If (Gui_aF = Config_feedCount + 1)
+    GUI_getSelectedList()
+    If GUI_isSummaryView()
       Main_reloadFeeds()
     Else {
       SB_SetText("Reloading feed (" Gui_aF "/" Config_feedCount "): """ Config_feed#%Gui_aF%_title """ ...")
@@ -220,19 +218,19 @@ Return
 Main_reloadFeeds(flag = 0) {
   Global
 
-  If (Gui_a = 1) Or flag {
+  If GUI_isListView() Or flag {
     Suspend, On
     Loop, % Config_feedCount {
       SB_SetText("Reloading feed (" A_Index "/" Config_feedCount "): """ Config_feed#%A_Index%_title """ ...")
       If Not Config_feed#%A_Index%_singleReloadOnly
         If Feed_reload(A_Index) {
           Gui_loadEntryList(A_Index)
-          If (Gui_a = 1) Or (Gui_a = 2 And Gui_aF = A_Index)
+          If GUI_isListView() Or (GUI_isItemView() And Gui_aF = A_Index)
             Gui_navigate(0)
         }
     }
     SB_SetText("")
-    If (Gui_a = 1)
+    If GUI_isListView()
       Gui_navigate(0)
     Suspend, Off
   }
@@ -241,14 +239,14 @@ Main_reloadFeeds(flag = 0) {
 Main_toggleDeleteMark() {
   Local e, f
 
-  If (Gui_a > 1) {
-    If (Gui_a = 2)
-      GuiControlGet, Gui_aE, , Gui#2
+  If Not (GUI_isHelpView() Or GUI_isListView()) {
+    If GUI_isItemView()
+      GUI_getSelectedItem()
     Main_getFeedEntryIndices(Gui_aE, f, e)
     If List_itemHasFlag("Feed", f, e, "D") {
       List_undeleteItem("Feed", f, e)
       GUI_markEntry(f, e, " ")
-      If (Gui_aF = Config_feedCount + 1) {
+      If GUI_isSummaryView() {
         List_changeItemFlag("Feed", Gui_aF, Gui_aE, " ")
         GUI_markEntry(Gui_aF, Gui_aE, " ")
       }
@@ -257,7 +255,7 @@ Main_toggleDeleteMark() {
         List_seenItem("Feed", f, e)
       List_deleteItem("Feed", f, e)
       GUI_markEntry(f, e, "D")
-      If (Gui_aF = Config_feedCount + 1) {
+      If GUI_isSummaryView() {
         List_changeItemFlag("Feed", Gui_aF, Gui_aE, "D")
         GUI_markEntry(Gui_aF, Gui_aE, "D")
       }
@@ -269,13 +267,13 @@ Main_toggleDeleteMark() {
 Main_toggleUnreadMark() {
   Local e, f
 
-  If (Gui_a > 1) {
-    If (Gui_a = 2)
-      GuiControlGet, Gui_aE, , Gui#2
+  If Not (GUI_isHelpView() Or GUI_isListView()) {
+    If GUI_isItemView()
+      GUI_getSelectedItem()
     If List_itemHasFlag("Feed", Gui_aF, Gui_aE, " ") {
       List_unseenItem("Feed", Gui_aF, Gui_aE)
       GUI_markEntry(Gui_aF, Gui_aE, "N")
-      If (Gui_aF = Config_feedCount + 1) {
+      If GUI_isSummaryView() {
         f := Feed#%Gui_aF%_e#%Gui_aE%_f
         e := Feed#%Gui_aF%_e#%Gui_aE%_e
         List_unseenItem("Feed", f, e)
@@ -285,7 +283,7 @@ Main_toggleUnreadMark() {
       Main_markEntryRead()
 
     Gui_loadEntryList(Gui_aF)
-    If (Gui_a = 2)
+    If GUI_isItemView()
       GUI_setEntryList()
   }
 }
