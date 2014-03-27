@@ -42,19 +42,23 @@ List_blankMemory(id, i) {
 }
 
 List_changeItemFlag(id, i, j, flag) {
+  Global
   %id%#%i%_e#%j%_flag := flag
 }
 
 List_deleteItem(id, i, j) {
+  Global
   %id%#%i%_delete .= j ";"
   List_changeItemFlag(id, i, j, "D")
 }
 List_undeleteItem(id, i, j) {
+  Global
   StringReplace, %id%#%i%_delete, %id%#%i%_delete, %j%`;,
   List_changeItemFlag(id, i, j, " ")
 }
 
 List_itemHasFlag(id, i, j, flag) {
+  Global
   Return, (%id%#%i%_e#%j%_flag = flag)
 }
 
@@ -163,10 +167,12 @@ List_save(id, i) {
 }
 
 List_seenItem(id, i, j) {
+  Global
   %id%#%i%_unreadECount -= 1
   List_changeItemFlag(id, i, j, " ")
 }
 List_unseenItem(id, i, j) {
+  Global
   %id%#%i%_unreadECount += 1
   List_changeItemFlag(id, i, j, "N")
 }
