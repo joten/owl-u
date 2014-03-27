@@ -84,7 +84,7 @@ Main_cleanup:
   SB_SetText("Saving feed status ...")
   Loop, % Config_feedCount {
     Feed_purgeDeleted(A_Index)
-    List_save("Feed", A_Index, Feed_cacheDir "\" Config_feed#%A_Index%_cacheId "\entries.ini", Config_feed#%A_Index%_title)
+    List_save("Feed", A_Index)
   }
   ;; Feed cleanup
   SB_SetText("Cleaning up cache ...")

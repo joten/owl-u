@@ -4,8 +4,11 @@
    License: GNU General Public License version 3 (GPLv3)
 */
 
-List_init(id, i, filename) {
+List_init(id, i, filename, title) {
   Local var, val
+
+  %id%#%i%_filename := filename
+  %id%#%i%_title := title
 
   If FileExist(filename)
     Loop, READ, %filename%
@@ -134,10 +137,10 @@ List_removeItem(id, i, j) {
   }
 }
 
-List_save(id, i, filename, title) {
+List_save(id, i) {
   Local field, j, text
 
-  text := ";; " NAME " " VERSION " -- " title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
+  text := ";; " NAME " " VERSION " -- " %id%#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
   text .= "timestamp=" %id%#%i%_timestamp "`n"
   text .= "eCount=" %id%#%i%_eCount "`n"
   text .= "unreadECount=" %id%#%i%_unreadECount "`n"
@@ -155,8 +158,8 @@ List_save(id, i, filename, title) {
     }
   }
 
-  FileDelete, %filename%
-  FileAppend, %text%, %filename%
+  FileDelete, % %id%#%i%_filename
+  FileAppend, %text%, % %id%#%i%_filename
 }
 
 List_seenItem(id, i, j) {

@@ -17,7 +17,7 @@ Feed_init(i) {
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId
     Main_makeDir(filename)
     filename .= "\entries.ini"
-    List_init("Feed", i, filename)
+    List_init("Feed", i, filename, Config_feed#%i%_title)
   }
 }
 
