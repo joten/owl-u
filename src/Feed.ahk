@@ -22,26 +22,25 @@ Feed_init(i) {
 }
 
 Feed_initSummary(i) {
-  Local j = 0, k
+  Local j, k
 
+  List_blankMemory("Feed", i)
   Loop, % Config_feedCount {
     k := A_Index
     Loop, % List_getNumberOfItems("Feed", k)
       If List_itemHasFlag("Feed", k, A_Index, "N") {
-        j += 1
-        Feed#%i%_e#%j%_f       := k
-        Feed#%i%_e#%j%_e       := A_Index
-        Feed#%i%_e#%j%_author  := Feed#%k%_e#%A_Index%_author
-        Feed#%i%_e#%j%_flag    := "N"
-        Feed#%i%_e#%j%_link    := Feed#%k%_e#%A_Index%_link
-        Feed#%i%_e#%j%_summary := Feed#%k%_e#%A_Index%_summary
-        Feed#%i%_e#%j%_title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]"
-        Feed#%i%_e#%j%_title   .= "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " Feed#%k%_e#%A_Index%_title
-        Feed#%i%_e#%j%_updated := Feed#%k%_e#%A_Index%_updated
+        author  := List_getItemField("Feed", k, A_Index, "author")
+        link    := List_getItemField("Feed", k, A_Index, "link")
+        summary := List_getItemField("Feed", k, A_Index, "summary")
+        title   := List_getItemField("Feed", k, A_Index, "title")
+        updated := List_getItemField("Feed", k, A_Index, "updated")
+        title   := "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " title
+        title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]" title
+        j := List_addItem("Feed", i, author, "N", link, summary, title, updated)
+        Feed#%i%_e#%j%_f := k
+        Feed#%i%_e#%j%_e := A_Index
       }
   }
-  Feed#%i%_eCount := j
-  Feed#%i%_unreadECount := j
 }
 
 Feed_decodeHtmlChar(text) {

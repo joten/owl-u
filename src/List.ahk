@@ -26,6 +26,21 @@ List_init(id, i, filename, title) {
   %id%#%i%_delete := ";"
 }
 
+List_addItem(id, i, f1, f2, f3, f4, f5, f6) {
+  Local field, j
+
+  %id%#%i%_eCount += 1
+  j := %id%#%i%_eCount
+  Loop, % List_%id%_itemField_#0 {
+    field := List_%id%_itemField_#%A_Index%
+    %id%#%i%_e#%j%_%field% := f%A_Index%
+  }
+  If List_itemHasFlag(id, i, j, "N")
+    %id%#%i%_unreadECount += 1
+
+  Return, j
+}
+
 List_blankMemory(id, i) {
   Local field, j
 
