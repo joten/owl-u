@@ -122,8 +122,8 @@ Main_getFeedEntryIndices(j, ByRef f, ByRef e) {
   Global
 
   If GUI_isSummaryView() {
-    f := List_getItemField("Feed", Gui_aF, j, "f")
-    e := List_getItemField("Feed", Gui_aF, j, "e")
+    f := List_getField("Feed", Gui_aF, j, "f")
+    e := List_getField("Feed", Gui_aF, j, "e")
   } Else {
     f := Gui_aF
     e := Gui_aE
@@ -161,8 +161,8 @@ Main_markEntryRead() {
     List_seenItem("Feed", Gui_aF, Gui_aE)
     GUI_markEntry(Gui_aF, Gui_aE, " ")
     If GUI_isSummaryView() {
-      f := List_getItemField("Feed", Gui_aF, Gui_aE, "f")
-      e := List_getItemField("Feed", Gui_aF, Gui_aE, "e")
+      f := List_getField("Feed", Gui_aF, Gui_aE, "f")
+      e := List_getField("Feed", Gui_aF, Gui_aE, "e")
       List_seenItem("Feed", f, e)
       GUI_markEntry(f, e, " ")
     }
@@ -179,8 +179,8 @@ Main_markFeedRead() {
       If List_itemHasFlag("Feed", Gui_aF, A_Index, "N") {
         List_seenItem("Feed", Gui_aF, A_Index)
         If GUI_isSummaryView() {
-          f := List_getItemField("Feed", Gui_aF, A_Index, "f")
-          e := List_getItemField("Feed", Gui_aF, A_Index, "e")
+          f := List_getField("Feed", Gui_aF, A_Index, "f")
+          e := List_getField("Feed", Gui_aF, A_Index, "e")
           List_seenItem("Feed", f, e)
         }
       }
@@ -275,8 +275,8 @@ Main_toggleUnreadMark() {
       List_unseenItem("Feed", Gui_aF, Gui_aE)
       GUI_markEntry(Gui_aF, Gui_aE, "N")
       If GUI_isSummaryView() {
-        f := List_getItemField("Feed", Gui_aF, Gui_aE, "f")
-        e := List_getItemField("Feed", Gui_aF, Gui_aE, "e")
+        f := List_getField("Feed", Gui_aF, Gui_aE, "f")
+        e := List_getField("Feed", Gui_aF, Gui_aE, "e")
         List_unseenItem("Feed", f, e)
         GUI_markEntry(f, e, "N")
       }

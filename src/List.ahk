@@ -72,9 +72,13 @@ List_undeleteItem(id, i, j) {
   List_changeItemFlag(id, i, j, " ")
 }
 
-List_getItemField(id, i, j, field) {
+List_getField(id, i, j, field) {
   Global
-  Return, %id%#%i%_e#%j%_%field%
+
+  If (j > 0)
+    Return, %id%#%i%_e#%j%_%field%
+  Else
+    Return, %id%#%i%_%field%
 }
 
 List_getNumberOfItems(id, i) {
