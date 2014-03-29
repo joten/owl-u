@@ -377,13 +377,13 @@ Feed_readEncodedFile(filename) {
 }
 
 Feed_purgeDeleted(i) {
-  Local filename
+  Local filename, s
 
-  ;; Delete entries from the deletion list `Feed#%i%_delete`
-  StringTrimLeft, Feed#%i%_delete, Feed#%i%_delete, 1
-  StringTrimRight, Feed#%i%_delete, Feed#%i%_delete, 1
-  Sort, Feed#%i%_delete, NRD`;
-  Loop, PARSE, Feed#%i%_delete, `;
+  ;; Delete entries from the deletion list
+  StringTrimLeft, s, Feed#%i%_delete, 1
+  StringTrimRight, s, s, 1
+  Sort, s, NRD`;
+  Loop, PARSE, s, `;
   {
     filename := Feed_getCacheId(List_getItemField("Feed", i, A_LoopField, "link"), Config_feed#%i%_htmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
