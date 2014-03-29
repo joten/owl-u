@@ -22,7 +22,7 @@ Feed_init(i) {
 }
 
 Feed_initSummary(i) {
-  Local j, k
+  Local author, j, k, link, summary, title, updated
 
   List_blankMemory("Feed", i)
   Loop, % Config_feedCount {
