@@ -210,3 +210,12 @@ List_unseenItem(id, i, j) {
   %id%#%i%_unreadECount += 1
   List_changeItemFlag(id, i, j, "N")
 }
+
+List_setField(id, i, j, field, value) {
+  Global
+
+  If (j > 0)
+    %id%#%i%_e#%j%_%field% := value
+  Else
+    %id%#%i%_%field% := value
+}
