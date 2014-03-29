@@ -110,18 +110,18 @@ List_moveDeletedItems(id, i, d, m) {
 List_moveNewItems(id, i, n) {
   Local field, j
 
-  Loop, % %id%#N%i%_eCount  {
+  Loop, % %id%N#%i%_eCount  {
     j := A_Index
     If (j <= n) {
       Loop, % List_%id%_itemField_#0 {
         field := List_%id%_itemField_#%A_Index%
-        %id%#%i%_e#%j%_%field% := %id%#N%i%_e#%j%_%field%
+        %id%#%i%_e#%j%_%field% := %id%N#%i%_e#%j%_%field%
       }
       List_changeItemFlag(id, i, j, "N")
     }
     Loop, % List_%id%_itemField_#0 {
       field := List_%id%_itemField_#%j%
-      %id%#N%i%_e#%j%_%field% := ""
+      %id%N#%i%_e#%j%_%field% := ""
     }
   }
 }

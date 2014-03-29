@@ -214,9 +214,9 @@ Feed_getTimestamp(str) {
 ;; polyethene: Date parser - convert any date format to YYYYMMDDHH24MISS (http://www.autohotkey.net/~polyethene/#dateparse)
 
 Feed_parseEntry(i, data) {
-  Local filter, id, j, nCount, updated
+  Local filter, id, j, link, nCount, title, updated
 
-  Feed#N%i%_eCount := 0
+  List_blankMemory("FeedN", i)
   FormatTime, updated
   If (SubStr(Config_feed#%i%_xmlUrl, 1, 6) = "mua://") {
     filter := SubStr(Config_feed#%i%_xmlUrl, 7)
@@ -226,28 +226,20 @@ Feed_parseEntry(i, data) {
       If nCount {
         id := RegExReplace(A_LoopField, Config_feed#%i%_needleRegEx#2, Config_feed#%i%_replacement#2)
         If id And RegExMatch(id, filter) {
-          Feed#N%i%_eCount += 1
-          j := Feed#N%i%_eCount
-          Feed#N%i%_e#%j%_link := "about:blank?id=" id "&updated=" Feed_getTimestamp(updated)
-          Feed#N%i%_e#%j%_summary := A_LoopField
-          Feed#N%i%_e#%j%_title := nCount " new e-mail" (nCount > 1 ? "s" : "") " in " RegExReplace(id, filter, "$1") "."
-          Feed#N%i%_e#%j%_updated := updated
+          link  := "about:blank?id=" id "&updated=" Feed_getTimestamp(updated)
+          title := nCount " new e-mail" (nCount > 1 ? "s" : "") " in " RegExReplace(id, filter, "$1") "."
+          List_addItem("FeedN", i, "", "N", link, A_LoopField, title, updated)
         }
       }
     }
   } Else {
     data := Feed_filterHtmlPage(i, data)
     data := SubStr(data, 1, 4096)     ;; @TODO: Is there a technical reason for that limit (4096)?
-    If Not (data = List_getItemField("Feed", i, 1, "summary")) {
-      Feed#N%i%_eCount := 1
-      Feed#N%i%_e#1_link := Config_feed#%i%_htmlUrl
-      Feed#N%i%_e#1_summary := data
-      Feed#N%i%_e#1_title := Config_feed#%i%_title
-      Feed#N%i%_e#1_updated := updated
-    }
+    If Not (data = List_getItemField("Feed", i, 1, "summary"))
+      List_addItem(id, i, "", "N", Config_feed#%i%_htmlUrl, data, Config_feed#%i%_title, updated)
   }
 
-  Feed#N%i%_timestamp := Feed_getTimestamp(updated)
+  FeedN#%i%_timestamp := Feed_getTimestamp(updated)
   ;; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
 }
 
@@ -255,7 +247,7 @@ Feed_parseEntries(i, data) {
   Local entryTag, feedTag, link, n = 0, pos1, pos4, summary, summaryTag, timestamp, updated, updatedTag
 
   Feed_getTagNames(data, feedTag, entryTag, summaryTag, updatedTag)
-  Feed#N%i%_timestamp := Feed#%i%_timestamp
+  FeedN#%i%_timestamp := Feed#%i%_timestamp
   pos1 := InStr(data, "<" feedTag)
   If InStr(data, "</" feedTag ">") And InStr(data, "</" entryTag ">")
     Loop {
@@ -271,22 +263,22 @@ Feed_parseEntries(i, data) {
           Break
         Else {
           n += 1
-          If (timestamp > Feed#N%i%_timestamp)
-            Feed#N%i%_timestamp := timestamp
-          Feed#N%i%_e#%n%_link    := link
-          Feed#N%i%_e#%n%_summary := summary
-          Feed#N%i%_e#%n%_updated := updated
+          If (timestamp > FeedN#%i%_timestamp)
+            FeedN#%i%_timestamp := timestamp
+          FeedN#%i%_e#%n%_link    := link
+          FeedN#%i%_e#%n%_summary := summary
+          FeedN#%i%_e#%n%_updated := updated
         }
 
-        Feed#N%i%_e#%n%_author := Feed_parseEntryAuthor(data, pos1, pos4)
-        Feed#N%i%_e#%n%_title  := Feed_parseEntryTitle(data, pos1, pos4)
+        FeedN#%i%_e#%n%_author := Feed_parseEntryAuthor(data, pos1, pos4)
+        FeedN#%i%_e#%n%_title  := Feed_parseEntryTitle(data, pos1, pos4)
 
         pos1 := pos4
       } Else
         Break
     }
 
-  Feed#N%i%_eCount := n
+  FeedN#%i%_eCount := n
 }
 
 Feed_parseEntryAuthor(data, pos1, pos4) {
@@ -408,7 +400,7 @@ Feed_reload(i) {
       Feed_parseEntry(i, data)
     Else
       Feed_parseEntries(i, data)
-    n := Feed#N%i%_eCount                             ;; Number of new entries
+    n := FeedN#%i%_eCount                             ;; Number of new entries
     If (List_getNumberOfItems("Feed", i) > 0 And n < Config_maxItems) {
       Feed_purgeDeleted(i)
       m := Config_maxItems - n                        ;; Number of old entries, to be kept
@@ -422,11 +414,11 @@ Feed_reload(i) {
       n := Config_maxItems
     List_moveNewItems("Feed", i, n)
     StringReplace, Config_feed#%i%_title, Config_feed#%i%_title, % " [ERROR!]", , All
-    Feed#%i%_timestamp := Feed#N%i%_timestamp
+    Feed#%i%_timestamp := FeedN#%i%_timestamp
     Feed#%i%_eCount := n + m + d
     Feed#%i%_unreadECount := u + n
-    Feed#N%i%_eCount :=
-    Feed#N%i%_timestamp :=
+    FeedN#%i%_eCount :=
+    FeedN#%i%_timestamp :=
 
     Return, True
   } Else {
