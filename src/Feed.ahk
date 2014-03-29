@@ -236,7 +236,7 @@ Feed_parseEntry(i, data) {
     data := Feed_filterHtmlPage(i, data)
     data := SubStr(data, 1, 4096)     ;; @TODO: Is there a technical reason for that limit (4096)?
     If Not (data = List_getItemField("Feed", i, 1, "summary"))
-      List_addItem(id, i, "", "N", Config_feed#%i%_htmlUrl, data, Config_feed#%i%_title, updated)
+      List_addItem("FeedN", i, "", "N", Config_feed#%i%_htmlUrl, data, Config_feed#%i%_title, updated)
   }
 
   FeedN#%i%_timestamp := Feed_getTimestamp(updated)
@@ -244,7 +244,7 @@ Feed_parseEntry(i, data) {
 }
 
 Feed_parseEntries(i, data) {
-  Local entryTag, feedTag, link, n = 0, pos1, pos4, summary, summaryTag, timestamp, updated, updatedTag
+  Local author, entryTag, feedTag, link, pos1, pos4, summary, summaryTag, timestamp, title, updated, updatedTag
 
   Feed_getTagNames(data, feedTag, entryTag, summaryTag, updatedTag)
   FeedN#%i%_timestamp := Feed#%i%_timestamp
@@ -253,7 +253,7 @@ Feed_parseEntries(i, data) {
     Loop {
       pos1 := InStr(data, "<" entryTag, False, pos1)
       pos4 := InStr(data, "</" entryTag ">", False, pos1)
-      If pos1 And pos4 And (n < Config_maxItems) {
+      If pos1 And pos4 And (List_getNumberOfItems("FeedN", i) < Config_maxItems) {
         link    := Feed_parseEntryLink(data, pos1, pos4, feedTag, entryTag)
         summary := Feed_parseEntrySummary(data, pos1, pos4, summaryTag)
         updated := Feed_parseEntryUpdate(data, pos1, pos4, updatedTag, feedTag, entryTag, summary)
@@ -261,24 +261,17 @@ Feed_parseEntries(i, data) {
         timestamp := Feed_getTimestamp(updated)
         If (timestamp <= Feed#%i%_timestamp Or link = List_getItemField("Feed", i, 1, "link"))
           Break
-        Else {
-          n += 1
-          If (timestamp > FeedN#%i%_timestamp)
-            FeedN#%i%_timestamp := timestamp
-          FeedN#%i%_e#%n%_link    := link
-          FeedN#%i%_e#%n%_summary := summary
-          FeedN#%i%_e#%n%_updated := updated
-        }
 
-        FeedN#%i%_e#%n%_author := Feed_parseEntryAuthor(data, pos1, pos4)
-        FeedN#%i%_e#%n%_title  := Feed_parseEntryTitle(data, pos1, pos4)
+        author := Feed_parseEntryAuthor(data, pos1, pos4)
+        title  := Feed_parseEntryTitle(data, pos1, pos4)
+        List_addItem("FeedN", i, author, "N", link, summary, title, updated)
 
+        If (timestamp > FeedN#%i%_timestamp)
+          FeedN#%i%_timestamp := timestamp
         pos1 := pos4
       } Else
         Break
     }
-
-  FeedN#%i%_eCount := n
 }
 
 Feed_parseEntryAuthor(data, pos1, pos4) {

@@ -40,6 +40,7 @@ SetTitleMatchMode, fast
   Gui_resize()
   List_Feed_itemFields := "author;flag;link;summary;title;updated"
   StringSplit, List_Feed_itemField_#, List_Feed_itemFields, `;
+  StringSplit, List_FeedN_itemField_#, List_Feed_itemFields, `;
   Loop, % Config_feedCount {
     SB_SetText("Loading feed (" A_Index "/" Config_feedCount "): """ Config_feed#%A_Index%_title """ ...")
     Feed_init(A_Index)
