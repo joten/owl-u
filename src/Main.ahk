@@ -102,9 +102,9 @@ Main_download() {
     GUI_getSelectedList()
     MsgBox, 8225, %NAME% %VERSION% -- Download articles, % "Download all articles from """ Config_feed#%Gui_aF%_title """?"
     IfMsgBox OK
-      Loop, % Feed#%Gui_aF%_eCount {
+      Loop, % List_getNumberOfItems("Feed", Gui_aF) {
         Main_getFeedEntryIndices(A_Index, f, e)
-        SB_SetText("Downloading article " e "/" Feed#%f%_eCount " from """ Config_feed#%f%_title """ ...")
+        SB_SetText("Downloading article " e "/" List_getNumberOfItems("Feed", f) " from """ Config_feed#%f%_title """ ...")
         Feed_downloadArticle(f, e)
       }
   } Else {
@@ -174,7 +174,7 @@ Main_markFeedRead() {
   If GUI_isItemView() {
     GUI_getSelectedItem()
 
-    Loop, % Feed#%Gui_aF%_eCount
+    Loop, % List_getNumberOfItems("Feed", Gui_aF)
       If List_itemHasFlag("Feed", Gui_aF, A_Index, "N") {
         List_seenItem("Feed", Gui_aF, A_Index)
         If GUI_isSummaryView() {

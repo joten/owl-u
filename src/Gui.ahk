@@ -315,7 +315,7 @@ Gui_loadEntryList(i) {
   Local title
 
   Gui_f#%i%_eLs := ""
-  Loop, % Feed#%i%_eCount {
+  Loop, % List_getNumberOfItems("Feed", i) {
     StringReplace, title, Feed#%i%_e#%A_Index%_title, |, ¦, All
     Gui_f#%i%_eLs .= "|" SubStr(Gui_eCountStr1 A_Index, -StrLen(Config_maxItems) + 1) "  " Gui_eCountStr1 Feed#%i%_e#%A_Index%_flag "  " title
   }
@@ -347,7 +347,7 @@ Gui_navigate(d) {
   If d {
     If (Gui_a = 1 And d > 0) {
       GuiControlGet, Gui_aF, , Gui#2
-      If (Feed#%Gui_aF%_eCount < 1)
+      If (List_getNumberOfItems("Feed", Gui_aF) < 1)
         Return
     }
     If (Gui_a = 2 And d > 0) Or ((Gui_a = 1 Or Gui_a = 2) And Gui_a + d = 0)
@@ -427,7 +427,7 @@ Gui_resize(w = 0, h = 0) {
 GUI_setAbstractView() {
   Local dir, text
 
-  text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" Feed#%Gui_aF%_eCount "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
+  text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
   StringReplace, text, text, &, &&, All
   GuiControl, , Gui#1, % text
 
@@ -449,7 +449,7 @@ GUI_getSelectedList() {
 GUI_setEntryList() {
   Local text
 
-  text := SubStr(Gui_eCountStr1 Feed#%Gui_aF%_eCount, -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 Feed#%Gui_aF%_unreadECount, -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
+  text := SubStr(Gui_eCountStr1 List_getNumberOfItems("Feed", Gui_aF), -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 List_getNumberOfUnseenItems("Feed", Gui_aF), -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
   StringReplace, text, text, &, &&, All
   GuiControl, , Gui#1, % text
 
@@ -461,11 +461,11 @@ GUI_setFeedList() {
   Local eCount, fLs, i, unreadECount
 
   Loop, % Config_feedCount {
-    eCount += Feed#%A_Index%_eCount
-    unreadECount += Feed#%A_Index%_unreadECount
+    eCount += List_getNumberOfItems("Feed", A_Index)
+    unreadECount += List_getNumberOfUnseenItems("Feed", A_Index)
     fLs .= "|" SubStr(Gui_fCountStr A_Index, -StrLen(Config_feedCount) + 1)
-    fLs .= "  [" SubStr(Gui_eCountStr0 Feed#%A_Index%_unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1)
-    fLs .= "/" SubStr(Gui_eCountStr0 Feed#%A_Index%_eCount, -StrLen(Config_maxItems * Config_feedCount) + 1)
+    fLs .= "  [" SubStr(Gui_eCountStr0 List_getNumberOfUnseenItems("Feed", A_Index), -StrLen(Config_maxItems * Config_feedCount) + 1)
+    fLs .= "/" SubStr(Gui_eCountStr0 List_getNumberOfItems("Feed", A_Index), -StrLen(Config_maxItems * Config_feedCount) + 1)
     fLs .= "]  " Config_feed#%A_Index%_title
   }
   SB_SetText("Loading summary of new entries ...")
@@ -474,7 +474,7 @@ GUI_setFeedList() {
   Gui_loadEntryList(i)
   SB_SetText("")
   fLs .= "|" SubStr(Gui_fCountStr " ", -StrLen(Config_feedCount) + 1)
-  fLs .= "   " SubStr(Gui_eCountStr0 Feed#%i%_unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1)
+  fLs .= "   " SubStr(Gui_eCountStr0 List_getNumberOfUnseenItems("Feed", i), -StrLen(Config_maxItems * Config_feedCount) + 1)
   fLs .= " " SubStr(Gui_eCountStr0 " ", -StrLen(Config_maxItems * Config_feedCount) + 1)
   fLs .= "   " Config_feed#%i%_title
   GuiControl, , Gui#1, % SubStr(Gui_fCountStr Config_feedCount, -StrLen(Config_feedCount) + 1) "  [" SubStr(Gui_eCountStr0 unreadECount, -StrLen(Config_maxItems * Config_feedCount) + 1) "/" SubStr(Gui_eCountStr0 eCount, -StrLen(Config_maxItems * Config_feedCount) + 1) "]"
@@ -485,11 +485,11 @@ Gui_showUnreadEntry(d) {
   Local i, text
 
   If (Gui_a > 2) {
-    If (Feed#%Gui_aF%_unreadECount > 0) {
+    If (List_getNumberOfUnseenItems("Feed", Gui_aF) > 0) {
       i := GUI_getMarkedItem(d, "N")
       If (i > 0) {
         Gui_aE := i
-        text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" Feed#%Gui_aF%_eCount "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
+        text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
         StringReplace, text, text, &, &&, All
         GuiControl, , Gui#1, % text
         Gui_navigate(0)

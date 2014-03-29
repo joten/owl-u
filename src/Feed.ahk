@@ -26,7 +26,7 @@ Feed_initSummary(i) {
 
   Loop, % Config_feedCount {
     k := A_Index
-    Loop, % Feed#%k%_eCount
+    Loop, % List_getNumberOfItems("Feed", k)
       If (Feed#%k%_e#%A_Index%_flag = "N") {
         j += 1
         Feed#%i%_e#%j%_f       := k
@@ -409,14 +409,14 @@ Feed_reload(i) {
       Feed_parseEntry(i, data)
     Else
       Feed_parseEntries(i, data)
-    n := Feed#N%i%_eCount           ;; Number of new entries
-    If (Feed#%i%_eCount And n < Config_maxItems) {
+    n := Feed#N%i%_eCount                             ;; Number of new entries
+    If (List_getNumberOfItems("Feed", i) > 0 And n < Config_maxItems) {
       Feed_purgeDeleted(i)
-      m := Config_maxItems - n      ;; Number of old entries, to be kept
-      If (Feed#%i%_eCount < m)
-        m := Feed#%i%_eCount
+      m := Config_maxItems - n                        ;; Number of old entries, to be kept
+      If (List_getNumberOfItems("Feed", i) < m)
+        m := List_getNumberOfItems("Feed", i)
       Else
-        d := Feed#%i%_eCount - m    ;; Number of old entries, to be deleted
+        d := List_getNumberOfItems("Feed", i) - m     ;; Number of old entries, to be deleted
       List_moveDeletedItems("Feed", i, d, m)
       u := List_moveOldItems("Feed", i, m, n)
     } Else If (n > Config_maxItems)

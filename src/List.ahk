@@ -19,9 +19,9 @@ List_init(id, i, filename, title) {
       }
   If Not %id%#%i%_timestamp
     %id%#%i%_timestamp := 0
-  If Not %id%#%i%_eCount
+  If Not List_getNumberOfItems(id, i)
     %id%#%i%_eCount := 0
-  If Not %id%#%i%_unreadECount
+  If Not List_getNumberOfUnseenItems(id, i)
     %id%#%i%_unreadECount := 0
   %id%#%i%_delete := ";"
 }
@@ -29,7 +29,7 @@ List_init(id, i, filename, title) {
 List_blankMemory(id, i) {
   Local field, j
 
-  Loop, % %id%#%i%_eCount {
+  Loop, % List_getNumberOfItems(id, i) {
     j := A_Index
     Loop, % %id%_entryField_#0 {
       field := %id%_entryField_#%A_Index%
@@ -57,6 +57,16 @@ List_undeleteItem(id, i, j) {
   List_changeItemFlag(id, i, j, " ")
 }
 
+List_getNumberOfItems(id, i) {
+  Global
+  Return, %id%#%i%_eCount
+}
+
+List_getNumberOfUnseenItems(id, i) {
+  Global
+  Return, %id%#%i%_unreadECount
+}
+
 List_itemHasFlag(id, i, j, flag) {
   Global
   Return, (%id%#%i%_e#%j%_flag = flag)
@@ -80,7 +90,7 @@ List_moveDeletedItems(id, i, d, m) {
 List_moveNewItems(id, i, n) {
   Local field, j
 
-  Loop, % %id%#N%i%_eCount {
+  Loop, % %id%#N%i%_eCount  {
     j := A_Index
     If (j <= n) {
       Loop, % List_%id%_itemField_#0 {
@@ -118,8 +128,8 @@ List_removeItem(id, i, j) {
   Local field, p, q
 
   ;; Move all items with a higher index than `j` down by 1
-  If (j > 0 And j <= %id%#%i%_eCount) {
-    Loop, % %id%#%i%_eCount - j {
+  If (j > 0 And j <= List_getNumberOfItems(id, i)) {
+    Loop, % List_getNumberOfItems(id, i) - j {
       p := j + A_Index
       q := p - 1
       Loop, % List_%id%_itemField_#0 {
@@ -132,7 +142,7 @@ List_removeItem(id, i, j) {
 
   ;; Remove the last item of the list
   If (j = -1) {
-    j := %id%#%i%_eCount
+    j := List_getNumberOfItems(id, i)
     Loop, % List_%id%_itemField_#0 {
       field := List_%id%_itemField_#%A_Index%
       %id%#%i%_e#%j%_%field% := ""
@@ -146,9 +156,9 @@ List_save(id, i) {
 
   text := ";; " NAME " " VERSION " -- " %id%#%i%_title " (" A_DD "." A_MM "." A_YYYY ")`n`n"
   text .= "timestamp=" %id%#%i%_timestamp "`n"
-  text .= "eCount=" %id%#%i%_eCount "`n"
-  text .= "unreadECount=" %id%#%i%_unreadECount "`n"
-  Loop, % %id%#%i%_eCount {
+  text .= "eCount=" List_getNumberOfItems(id, i) "`n"
+  text .= "unreadECount=" List_getNumberOfUnseenItems(id, i) "`n"
+  Loop, % List_getNumberOfItems(id, i) {
     j := A_Index
     text .= "`n"
     Loop, % List_%id%_itemField_#0 {
