@@ -74,13 +74,13 @@ Gui_createHtAbstract() {
 
   ht := Config_htmlTemplate
   body := "<table>`n"
-  body .= "<tr><th class=""abstract"">Title</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_title "</td></tr>`n"
-  body .= "<tr><th class=""abstract"">Date</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_updated "</td></tr>`n"
-  body .= "<tr><th class=""abstract"">Link</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_link "</td></tr>`n"
-  If Feed#%Gui_aF%_e#%Gui_aE%_author
-    body .= "<tr><th class=""abstract"">From</th><td>" Feed#%Gui_aF%_e#%Gui_aE%_author "</td></tr>`n"
+  body .= "<tr><th class=""abstract"">Title</th><td>" List_getItemField("Feed", Gui_aF, Gui_aE, "title") "</td></tr>`n"
+  body .= "<tr><th class=""abstract"">Date</th><td>" List_getItemField("Feed", Gui_aF, Gui_aE, "updated") "</td></tr>`n"
+  body .= "<tr><th class=""abstract"">Link</th><td>" List_getItemField("Feed", Gui_aF, Gui_aE, "link") "</td></tr>`n"
+  If List_getItemField("Feed", Gui_aF, Gui_aE, "author")
+    body .= "<tr><th class=""abstract"">From</th><td>" List_getItemField("Feed", Gui_aF, Gui_aE, "author") "</td></tr>`n"
   body .= "</table>`n`n"
-  body .= "<p><div class=""fixed-width"">`n`t" Feed#%Gui_aF%_e#%Gui_aE%_summary "</div></p>`n"
+  body .= "<p><div class=""fixed-width"">`n`t" List_getItemField("Feed", Gui_aF, Gui_aE, "summary") "</div></p>`n"
 
   StringReplace, ht, ht, <!-- charset -->, utf-8
   StringReplace, ht, ht, <!-- body -->, %body%
@@ -115,7 +115,7 @@ Gui_createHtArticle() {
 
     Return, Feed_cacheDir "\article.tmp.htm"
   } Else
-    Return, Feed#%f%_e#%e%_link
+    Return, List_getItemField("Feed", f, e, "link")
 }
 
 GUI_createLoadingPage() {
@@ -280,7 +280,7 @@ GUI_IE_navigate(d) {
   Local dir
 
   StringReplace, dir, Feed_cacheDir, \, /, All
-  If (Gui_a = 4 And d = "back" And Not Gui#3.LocationURL = Feed#%Gui_aF%_e#%Gui_aE%_link) {
+  If (Gui_a = 4 And d = "back" And Not Gui#3.LocationURL = List_getItemField("Feed", Gui_aF, Gui_aE, "link")) {
     If Not (Gui#3.LocationURL = "file:///" dir "/article.tmp.htm"
       Or Gui#3.LocationURL = "file:///" dir "/loading.tmp.htm"
       Or Gui#3.LocationURL = "file:///" Main_docDir "/Quick_help.htm") {
@@ -316,8 +316,9 @@ Gui_loadEntryList(i) {
 
   Gui_f#%i%_eLs := ""
   Loop, % List_getNumberOfItems("Feed", i) {
-    StringReplace, title, Feed#%i%_e#%A_Index%_title, |, ¦, All
-    Gui_f#%i%_eLs .= "|" SubStr(Gui_eCountStr1 A_Index, -StrLen(Config_maxItems) + 1) "  " Gui_eCountStr1 Feed#%i%_e#%A_Index%_flag "  " title
+    title := List_getItemField("Feed", i, A_Index, "title")
+    StringReplace, title, title, |, ¦, All
+    Gui_f#%i%_eLs .= "|" SubStr(Gui_eCountStr1 A_Index, -StrLen(Config_maxItems) + 1) "  " Gui_eCountStr1 List_getItemField("Feed", i, A_Index, "flag") "  " title
   }
   If Not Gui_f#%i%_eLs
     Gui_f#%i%_eLs := "|"
@@ -400,7 +401,7 @@ Gui_openArticle() {
   If (Gui_a > 1) {
     If (Gui_a = 2)
       GuiControlGet, Gui_aE, , Gui#2
-    Run, % Config_browser " " Feed#%Gui_aF%_e#%Gui_aE%_link
+    Run, % Config_browser " " List_getItemField("Feed", Gui_aF, Gui_aE, "link")
   } Else If (Gui_a = 1) {
     GuiControlGet, Gui_aF, , Gui#2
     Run, % Config_browser " " Config_feed#%Gui_aF%_htmlUrl
@@ -427,7 +428,7 @@ Gui_resize(w = 0, h = 0) {
 GUI_setAbstractView() {
   Local dir, text
 
-  text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
+  text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ List_getItemField("Feed", Gui_aF, Gui_aE, "title") """"
   StringReplace, text, text, &, &&, All
   GuiControl, , Gui#1, % text
 
@@ -489,7 +490,7 @@ Gui_showUnreadEntry(d) {
       i := GUI_getMarkedItem(d, "N")
       If (i > 0) {
         Gui_aE := i
-        text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ Feed#%Gui_aF%_e#%Gui_aE%_title """"
+        text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ List_getItemField("Feed", Gui_aF, Gui_aE, "title") """"
         StringReplace, text, text, &, &&, All
         GuiControl, , Gui#1, % text
         Gui_navigate(0)

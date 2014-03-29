@@ -27,7 +27,7 @@ Feed_initSummary(i) {
   Loop, % Config_feedCount {
     k := A_Index
     Loop, % List_getNumberOfItems("Feed", k)
-      If (Feed#%k%_e#%A_Index%_flag = "N") {
+      If List_itemHasFlag("Feed", k, A_Index, "N") {
         j += 1
         Feed#%i%_e#%j%_f       := k
         Feed#%i%_e#%j%_e       := A_Index
@@ -88,7 +88,7 @@ Feed_decodeHtmlChar(text) {
 Feed_downloadArticle(i, j) {
   Local filename, text, url
 
-  url := Feed#%i%_e#%j%_link
+  url := List_getItemField("Feed", i, j, "link")
   If Not (SubStr(url, 1, 6) = "mua://") {
     filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
@@ -153,7 +153,7 @@ Feed_getCacheId(string, replacement = "") {
 Feed_getHtmlFile(i, j) {
   Local filename, url
 
-  url := Feed#%i%_e#%j%_link
+  url := List_getItemField("Feed", i, j, "link")
   filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
   filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
   If FileExist(filename ".htm")
@@ -239,7 +239,7 @@ Feed_parseEntry(i, data) {
   } Else {
     data := Feed_filterHtmlPage(i, data)
     data := SubStr(data, 1, 4096)     ;; @TODO: Is there a technical reason for that limit (4096)?
-    If Not (data = Feed#%i%_e#1_summary) {
+    If Not (data = List_getItemField("Feed", i, 1, "summary")) {
       Feed#N%i%_eCount := 1
       Feed#N%i%_e#1_link := Config_feed#%i%_htmlUrl
       Feed#N%i%_e#1_summary := data
@@ -268,7 +268,7 @@ Feed_parseEntries(i, data) {
         updated := Feed_parseEntryUpdate(data, pos1, pos4, updatedTag, feedTag, entryTag, summary)
 
         timestamp := Feed_getTimestamp(updated)
-        If (timestamp <= Feed#%i%_timestamp Or link = Feed#%i%_e#1_link)
+        If (timestamp <= Feed#%i%_timestamp Or link = List_getItemField("Feed", i, 1, "link"))
           Break
         Else {
           n += 1
@@ -386,7 +386,7 @@ Feed_purgeDeleted(i) {
   Sort, Feed#%i%_delete, NRD`;
   Loop, PARSE, Feed#%i%_delete, `;
   {
-    filename := Feed_getCacheId(Feed#%i%_e#%A_LoopField%_link, Config_feed#%i%_htmlUrl)
+    filename := Feed_getCacheId(List_getItemField("Feed", i, A_LoopField, "link"), Config_feed#%i%_htmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
     FileMove, %filename%.htm, %filename%.tmp.htm
     List_removeItem("Feed", i, A_LoopField)
