@@ -29,11 +29,11 @@ Feed_initSummary(i) {
     k := A_Index
     Loop, % List_getNumberOfItems("Feed", k)
       If List_itemHasFlag("Feed", k, A_Index, "N") {
-        author  := List_getField("Feed", k, A_Index, "author")
-        link    := List_getField("Feed", k, A_Index, "link")
-        summary := List_getField("Feed", k, A_Index, "summary")
-        title   := List_getField("Feed", k, A_Index, "title")
-        updated := List_getField("Feed", k, A_Index, "updated")
+        author  := List_getItemField("Feed", k, A_Index, "author")
+        link    := List_getItemField("Feed", k, A_Index, "link")
+        summary := List_getItemField("Feed", k, A_Index, "summary")
+        title   := List_getItemField("Feed", k, A_Index, "title")
+        updated := List_getItemField("Feed", k, A_Index, "updated")
         title   := "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " title
         title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]" title
         j := List_addItem("Feed", i, author, "N", link, summary, title, updated)
@@ -87,7 +87,7 @@ Feed_decodeHtmlChar(text) {
 Feed_downloadArticle(i, j) {
   Local filename, text, url
 
-  url := List_getField("Feed", i, j, "link")
+  url := List_getItemField("Feed", i, j, "link")
   If Not (SubStr(url, 1, 6) = "mua://") {
     filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
@@ -152,7 +152,7 @@ Feed_getCacheId(string, replacement = "") {
 Feed_getHtmlFile(i, j) {
   Local filename, url
 
-  url := List_getField("Feed", i, j, "link")
+  url := List_getItemField("Feed", i, j, "link")
   filename := Feed_getCacheId(url, Config_feed#%i%_htmlUrl)
   filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
   If FileExist(filename ".htm")
@@ -235,7 +235,7 @@ Feed_parseEntry(i, data) {
   } Else {
     data := Feed_filterHtmlPage(i, data)
     data := SubStr(data, 1, 4096)     ;; @TODO: Is there a technical reason for that limit (4096)?
-    If Not (data = List_getField("Feed", i, 1, "summary"))
+    If Not (data = List_getItemField("Feed", i, 1, "summary"))
       List_addItem("FeedN", i, "", "N", Config_feed#%i%_htmlUrl, data, Config_feed#%i%_title, updated)
   }
 
@@ -247,7 +247,7 @@ Feed_parseEntries(i, data) {
   Local author, entryTag, feedTag, link, pos1, pos4, summary, summaryTag, timestamp, title, updated, updatedTag
 
   Feed_getTagNames(data, feedTag, entryTag, summaryTag, updatedTag)
-  FeedN#%i%_timestamp := List_getField("Feed", i, 0, "timestamp")
+  FeedN#%i%_timestamp := Feed#%i%_timestamp
   pos1 := InStr(data, "<" feedTag)
   If InStr(data, "</" feedTag ">") And InStr(data, "</" entryTag ">")
     Loop {
@@ -259,14 +259,14 @@ Feed_parseEntries(i, data) {
         updated := Feed_parseEntryUpdate(data, pos1, pos4, updatedTag, feedTag, entryTag, summary)
 
         timestamp := Feed_getTimestamp(updated)
-        If (timestamp <= List_getField("Feed", i, 0, "timestamp") Or link = List_getField("Feed", i, 1, "link"))
+        If (timestamp <= Feed#%i%_timestamp Or link = List_getItemField("Feed", i, 1, "link"))
           Break
 
         author := Feed_parseEntryAuthor(data, pos1, pos4)
         title  := Feed_parseEntryTitle(data, pos1, pos4)
         List_addItem("FeedN", i, author, "N", link, summary, title, updated)
 
-        If (timestamp > List_getField("FeedN", i, 0, "timestamp"))
+        If (timestamp > FeedN#%i%_timestamp)
           FeedN#%i%_timestamp := timestamp
         pos1 := pos4
       } Else
@@ -365,13 +365,12 @@ Feed_purgeDeleted(i) {
   Local filename, s
 
   ;; Delete entries from the deletion list
-  s := List_getField("Feed", i, 0, "delete")
-  StringTrimLeft, s, s, 1
+  StringTrimLeft, s, Feed#%i%_delete, 1
   StringTrimRight, s, s, 1
   Sort, s, NRD`;
   Loop, PARSE, s, `;
   {
-    filename := Feed_getCacheId(List_getField("Feed", i, A_LoopField, "link"), Config_feed#%i%_htmlUrl)
+    filename := Feed_getCacheId(List_getItemField("Feed", i, A_LoopField, "link"), Config_feed#%i%_htmlUrl)
     filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
     FileMove, %filename%.htm, %filename%.tmp.htm
     List_removeItem("Feed", i, A_LoopField)
@@ -394,7 +393,7 @@ Feed_reload(i) {
       Feed_parseEntry(i, data)
     Else
       Feed_parseEntries(i, data)
-    n := List_getNumberOfItems("FeedN", i)            ;; Number of new entries
+    n := FeedN#%i%_eCount                             ;; Number of new entries
     If (List_getNumberOfItems("Feed", i) > 0 And n < Config_maxItems) {
       Feed_purgeDeleted(i)
       m := Config_maxItems - n                        ;; Number of old entries, to be kept
@@ -408,10 +407,11 @@ Feed_reload(i) {
       n := Config_maxItems
     List_moveNewItems("Feed", i, n)
     StringReplace, Config_feed#%i%_title, Config_feed#%i%_title, % " [ERROR!]", , All
-    Feed#%i%_timestamp := List_getField("FeedN", i, 0, "timestamp")
+    Feed#%i%_timestamp := FeedN#%i%_timestamp
     Feed#%i%_eCount := n + m + d
     Feed#%i%_unreadECount := u + n
-    List_blankMemory("FeedN", i)
+    FeedN#%i%_eCount :=
+    FeedN#%i%_timestamp :=
 
     Return, True
   } Else {
