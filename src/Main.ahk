@@ -158,12 +158,12 @@ Main_markEntryRead() {
   Local e, f
 
   If List_itemHasFlag("Feed", Gui_aF, Gui_aE, "N") {
-    List_seenItem("Feed", Gui_aF, Gui_aE)
+    List_setItemSeen("Feed", Gui_aF, Gui_aE)
     GUI_markEntry(Gui_aF, Gui_aE, " ")
     If GUI_isSummaryView() {
       f := List_getItemField("Feed", Gui_aF, Gui_aE, "f")
       e := List_getItemField("Feed", Gui_aF, Gui_aE, "e")
-      List_seenItem("Feed", f, e)
+      List_setItemSeen("Feed", f, e)
       GUI_markEntry(f, e, " ")
     }
   }
@@ -177,11 +177,11 @@ Main_markFeedRead() {
 
     Loop, % List_getNumberOfItems("Feed", Gui_aF)
       If List_itemHasFlag("Feed", Gui_aF, A_Index, "N") {
-        List_seenItem("Feed", Gui_aF, A_Index)
+        List_setItemSeen("Feed", Gui_aF, A_Index)
         If GUI_isSummaryView() {
           f := List_getItemField("Feed", Gui_aF, A_Index, "f")
           e := List_getItemField("Feed", Gui_aF, A_Index, "e")
-          List_seenItem("Feed", f, e)
+          List_setItemSeen("Feed", f, e)
         }
       }
     If GUI_isSummaryView()
@@ -253,7 +253,7 @@ Main_toggleDeleteMark() {
       }
     } Else {
       If List_itemHasFlag("Feed", f, e, "N")
-        List_seenItem("Feed", f, e)
+        List_setItemSeen("Feed", f, e)
       List_deleteItem("Feed", f, e)
       GUI_markEntry(f, e, "D")
       If GUI_isSummaryView() {
@@ -272,12 +272,12 @@ Main_toggleUnreadMark() {
     If GUI_isItemView()
       GUI_getSelectedItem()
     If List_itemHasFlag("Feed", Gui_aF, Gui_aE, " ") {
-      List_unseenItem("Feed", Gui_aF, Gui_aE)
+      List_setItemUnseen("Feed", Gui_aF, Gui_aE)
       GUI_markEntry(Gui_aF, Gui_aE, "N")
       If GUI_isSummaryView() {
         f := List_getItemField("Feed", Gui_aF, Gui_aE, "f")
         e := List_getItemField("Feed", Gui_aF, Gui_aE, "e")
-        List_unseenItem("Feed", f, e)
+        List_setItemUnseen("Feed", f, e)
         GUI_markEntry(f, e, "N")
       }
     } Else

@@ -226,12 +226,12 @@ List_save(id, i) {
   FileAppend, %text%, % %id%#%i%_filename
 }
 
-List_seenItem(id, i, j) {
+List_setItemSeen(id, i, j) {
   Global
   %id%#%i%_unreadECount -= 1
   List_changeItemFlag(id, i, j, " ")
 }
-List_unseenItem(id, i, j) {
+List_setItemUnseen(id, i, j) {
   Global
   %id%#%i%_unreadECount += 1
   List_changeItemFlag(id, i, j, "N")
