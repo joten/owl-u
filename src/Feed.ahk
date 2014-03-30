@@ -247,6 +247,7 @@ Feed_parseEntries(i, data) {
   Local author, entryTag, feedTag, link, pos1, pos4, summary, summaryTag, timestamp, title, updated, updatedTag
 
   Feed_getTagNames(data, feedTag, entryTag, summaryTag, updatedTag)
+  List_blankMemory("FeedN", i)
   FeedN#%i%_timestamp := Feed#%i%_timestamp
   pos1 := InStr(data, "<" feedTag)
   If InStr(data, "</" feedTag ">") And InStr(data, "</" entryTag ">")
@@ -410,8 +411,6 @@ Feed_reload(i) {
     Feed#%i%_timestamp := FeedN#%i%_timestamp
     Feed#%i%_eCount := n + m + d
     Feed#%i%_unreadECount := u + n
-    FeedN#%i%_eCount :=
-    FeedN#%i%_timestamp :=
 
     Return, True
   } Else {
