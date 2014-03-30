@@ -37,8 +37,8 @@ Feed_initSummary(i) {
         title   := "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " title
         title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]" title
         j := List_addItem("Feed", i, author, "N", link, summary, title, updated)
-        Feed#%i%_e#%j%_f := k
-        Feed#%i%_e#%j%_e := A_Index
+        List_setItemField("Feed", i, j, "f", k)
+        List_setItemField("Feed", i, j, "e", A_Index)
       }
   }
 }
@@ -239,7 +239,7 @@ Feed_parseEntry(i, data) {
       List_addItem("FeedN", i, "", "N", Config_feed#%i%_htmlUrl, data, Config_feed#%i%_title, updated)
   }
 
-  FeedN#%i%_timestamp := Feed_getTimestamp(updated)
+  List_setTimestamp("FeedN", i, Feed_getTimestamp(updated))
   ;; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
 }
 
@@ -248,7 +248,7 @@ Feed_parseEntries(i, data) {
 
   Feed_getTagNames(data, feedTag, entryTag, summaryTag, updatedTag)
   List_blankMemory("FeedN", i)
-  FeedN#%i%_timestamp := Feed#%i%_timestamp
+  List_setTimestamp("FeedN", i, List_getTimestamp("Feed", i))
   pos1 := InStr(data, "<" feedTag)
   If InStr(data, "</" feedTag ">") And InStr(data, "</" entryTag ">")
     Loop {
@@ -260,15 +260,15 @@ Feed_parseEntries(i, data) {
         updated := Feed_parseEntryUpdate(data, pos1, pos4, updatedTag, feedTag, entryTag, summary)
 
         timestamp := Feed_getTimestamp(updated)
-        If (timestamp <= Feed#%i%_timestamp Or link = List_getItemField("Feed", i, 1, "link"))
+        If (timestamp <= List_getTimestamp("Feed", i) Or link = List_getItemField("Feed", i, 1, "link"))
           Break
 
         author := Feed_parseEntryAuthor(data, pos1, pos4)
         title  := Feed_parseEntryTitle(data, pos1, pos4)
         List_addItem("FeedN", i, author, "N", link, summary, title, updated)
 
-        If (timestamp > FeedN#%i%_timestamp)
-          FeedN#%i%_timestamp := timestamp
+        If (timestamp > List_getTimestamp("FeedN", i))
+          List_setTimestamp("FeedN", i, timestamp)
         pos1 := pos4
       } Else
         Break
@@ -349,6 +349,24 @@ Feed_parseEntryUpdate(data, pos1, pos4, updatedTag, feedTag, entryTag, summary) 
   Return, updated
 }
 
+Feed_purgeDeleted(i) {
+  Local filename, s
+
+  ;; Delete entries from the deletion list
+  s := List_getDeleted("Feed", i)
+  StringTrimLeft, s, s, 1
+  StringTrimRight, s, s, 1
+  Sort, s, NRD`;
+  Loop, PARSE, s, `;
+  {
+    filename := Feed_getCacheId(List_getItemField("Feed", i, A_LoopField, "link"), Config_feed#%i%_htmlUrl)
+    filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
+    FileMove, %filename%.htm, %filename%.tmp.htm
+    List_removeItem("Feed", i, A_LoopField)
+  }
+  List_setDeleted("Feed", i, ";")
+}
+
 Feed_readEncodedFile(filename) {
   FileRead, data, %filename%
   p := InStr(data, "encoding=", False, InStr(data, "<\?xml")) + 10
@@ -360,23 +378,6 @@ Feed_readEncodedFile(filename) {
     FileRead, data, *P28605 %filename%
 
   Return, data
-}
-
-Feed_purgeDeleted(i) {
-  Local filename, s
-
-  ;; Delete entries from the deletion list
-  StringTrimLeft, s, Feed#%i%_delete, 1
-  StringTrimRight, s, s, 1
-  Sort, s, NRD`;
-  Loop, PARSE, s, `;
-  {
-    filename := Feed_getCacheId(List_getItemField("Feed", i, A_LoopField, "link"), Config_feed#%i%_htmlUrl)
-    filename := Feed_cacheDir "\" Config_feed#%i%_cacheId "\" filename
-    FileMove, %filename%.htm, %filename%.tmp.htm
-    List_removeItem("Feed", i, A_LoopField)
-  }
-  Feed#%i%_delete := ";"
 }
 
 Feed_reload(i) {
@@ -394,7 +395,7 @@ Feed_reload(i) {
       Feed_parseEntry(i, data)
     Else
       Feed_parseEntries(i, data)
-    n := FeedN#%i%_eCount                             ;; Number of new entries
+    n := List_getNumberOfItems("FeedN", i)            ;; Number of new entries
     If (List_getNumberOfItems("Feed", i) > 0 And n < Config_maxItems) {
       Feed_purgeDeleted(i)
       m := Config_maxItems - n                        ;; Number of old entries, to be kept
@@ -408,14 +409,14 @@ Feed_reload(i) {
       n := Config_maxItems
     List_moveNewItems("Feed", i, n)
     StringReplace, Config_feed#%i%_title, Config_feed#%i%_title, % " [ERROR!]", , All
-    Feed#%i%_timestamp := FeedN#%i%_timestamp
-    Feed#%i%_eCount := n + m + d
-    Feed#%i%_unreadECount := u + n
+    List_setTimestamp("Feed", i, List_getTimestamp("FeedN", i))
+    List_setNumberOfItems("Feed", i, n + m + d)
+    List_setNumberOfUnseenItems("Feed", i, u + n)
 
     Return, True
   } Else {
     Config_feed#%i%_title .= " [ERROR!]"
-    Feed#%i%_unreadECount := "?"
+    List_setNumberOfUnseenItems("Feed", i, "?")
 
     Return, False
   }

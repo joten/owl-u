@@ -72,19 +72,49 @@ List_undeleteItem(id, i, j) {
   List_changeItemFlag(id, i, j, " ")
 }
 
+List_getDeleted(id, i) {
+  Global
+  Return, %id%#%i%_delete
+}
+List_setDeleted(id, i, value) {
+  Global
+  %id%#%i%_delete := value
+}
+
 List_getItemField(id, i, j, field) {
   Global
   Return, %id%#%i%_e#%j%_%field%
+}
+List_setItemField(id, i, j, field, value) {
+  Global
+  %id%#%i%_e#%j%_%field% := value
 }
 
 List_getNumberOfItems(id, i) {
   Global
   Return, %id%#%i%_eCount
 }
+List_setNumberOfItems(id, i, value) {
+  Global
+  %id%#%i%_eCount := value
+}
 
 List_getNumberOfUnseenItems(id, i) {
   Global
   Return, %id%#%i%_unreadECount
+}
+List_setNumberOfUnseenItems(id, i, value) {
+  Global
+  %id%#%i%_unreadECount := value
+}
+
+List_getTimestamp(id, i) {
+  Global
+  Return, %id%#%i%_timestamp
+}
+List_setTimestamp(id, i, value) {
+  Global
+  %id%#%i%_timestamp := value
 }
 
 List_itemHasFlag(id, i, j, flag) {
