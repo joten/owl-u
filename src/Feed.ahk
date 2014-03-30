@@ -383,7 +383,7 @@ Feed_readEncodedFile(filename) {
 Feed_reload(i) {
   Local d = 0, data, filename, m = 0, n = 0, statusStr, u = 0
 
-  GuiControlGet, statusStr, , Gui#4
+  statusStr := GUI_SB_getText()
   SB_SetText(statusStr " downloading")
   filename := Feed_cacheDir "\" i "_" A_Now A_MSec ".tmp.xml"
   Feed_downloadToFile(i, filename)

@@ -447,6 +447,12 @@ GUI_getSelectedList() {
   GuiControlGet, Gui_aF, , Gui#2
 }
 
+GUI_SB_getText() {
+  Global Gui#4
+  GuiControlGet, s, , Gui#4
+  Return, s
+}
+
 GUI_setEntryList() {
   Local text
 
