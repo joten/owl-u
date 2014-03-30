@@ -37,8 +37,8 @@ Feed_initSummary(i) {
         title   := "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " title
         title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]" title
         j := List_addItem("Feed", i, author, "N", link, summary, title, updated)
-        List_setField("Feed", i, j, "f", k)
-        List_setField("Feed", i, j, "e", A_Index)
+        Feed#%i%_e#%j%_f := k
+        Feed#%i%_e#%j%_e := A_Index
       }
   }
 }
@@ -239,7 +239,7 @@ Feed_parseEntry(i, data) {
       List_addItem("FeedN", i, "", "N", Config_feed#%i%_htmlUrl, data, Config_feed#%i%_title, updated)
   }
 
-  List_setField("FeedN", i, 0, "timestamp", Feed_getTimestamp(updated))
+  FeedN#%i%_timestamp := Feed_getTimestamp(updated)
   ;; Laszlo: Code to convert from/to UNIX timestamp. (http://www.autohotkey.com/forum/topic2633.html)
 }
 
@@ -247,7 +247,7 @@ Feed_parseEntries(i, data) {
   Local author, entryTag, feedTag, link, pos1, pos4, summary, summaryTag, timestamp, title, updated, updatedTag
 
   Feed_getTagNames(data, feedTag, entryTag, summaryTag, updatedTag)
-  List_setField("FeedN", i, 0, "timestamp", List_getField("Feed", i, 0, "timestamp"))
+  FeedN#%i%_timestamp := List_getField("Feed", i, 0, "timestamp")
   pos1 := InStr(data, "<" feedTag)
   If InStr(data, "</" feedTag ">") And InStr(data, "</" entryTag ">")
     Loop {
@@ -267,7 +267,7 @@ Feed_parseEntries(i, data) {
         List_addItem("FeedN", i, author, "N", link, summary, title, updated)
 
         If (timestamp > List_getField("FeedN", i, 0, "timestamp"))
-          List_setField("FeedN", i, 0, "timestamp", timestamp)
+          FeedN#%i%_timestamp := timestamp
         pos1 := pos4
       } Else
         Break
@@ -376,7 +376,7 @@ Feed_purgeDeleted(i) {
     FileMove, %filename%.htm, %filename%.tmp.htm
     List_removeItem("Feed", i, A_LoopField)
   }
-  List_setField("Feed", i, 0, "delete", ";")
+  Feed#%i%_delete := ";"
 }
 
 Feed_reload(i) {
@@ -408,15 +408,15 @@ Feed_reload(i) {
       n := Config_maxItems
     List_moveNewItems("Feed", i, n)
     StringReplace, Config_feed#%i%_title, Config_feed#%i%_title, % " [ERROR!]", , All
-    List_setField("Feed", i, 0, "timestamp", List_getField("FeedN", i, 0, "timestamp"))
-    List_setField("Feed", i, 0, "eCount", n + m + d)
-    List_setField("Feed", i, 0, "unreadECount", u + n)
+    Feed#%i%_timestamp := List_getField("FeedN", i, 0, "timestamp")
+    Feed#%i%_eCount := n + m + d
+    Feed#%i%_unreadECount := u + n
     List_blankMemory("FeedN", i)
 
     Return, True
   } Else {
     Config_feed#%i%_title .= " [ERROR!]"
-    List_setField("Feed", i, 0, "unreadECount", "?")
+    Feed#%i%_unreadECount := "?"
 
     Return, False
   }
