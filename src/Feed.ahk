@@ -32,10 +32,8 @@ Feed_initSummary(i) {
         author  := List_getItemField("Feed", k, A_Index, "author")
         link    := List_getItemField("Feed", k, A_Index, "link")
         summary := List_getItemField("Feed", k, A_Index, "summary")
-        title   := List_getItemField("Feed", k, A_Index, "title")
+        title   := "[" k "]" "[" A_Index "] " List_getItemField("Feed", k, A_Index, "title")
         updated := List_getItemField("Feed", k, A_Index, "updated")
-        title   := "[" SubStr(Gui_eCountStr0 A_Index, -StrLen(Config_maxItems * Config_feedCount) + 1) "] " title
-        title   := "[" SubStr(Gui_fCountStr k, -StrLen(Config_feedCount) + 1) "]" title
         j := List_addItem("Feed", i, author, "N", link, summary, title, updated)
         List_setItemField("Feed", i, j, "f", k)
         List_setItemField("Feed", i, j, "e", A_Index)

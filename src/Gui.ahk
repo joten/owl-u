@@ -30,7 +30,6 @@ Gui_init() {
   Gui_aF  := 1
 
   GUI_createLoadingPage()
-  GUI_getColumnWidth()
   GUI_getElementSize()
   GUI_createMainWindow(Config_windowWidth - 4, Config_windowHeight - Gui_barH - Gui_statusBarH)
 }
@@ -185,22 +184,6 @@ GUI_createTrayIcon() {
 Gui_exitApp:
   ExitApp
 Return
-
-GUI_getColumnWidth() {
-  Global Config_feedCount, Config_maxItems
-  Global Gui_eCountStr0, Gui_eCountStr1, Gui_fCountStr
-
-  Gui_fCountStr := ""
-  Loop, % StrLen(Config_feedCount)
-    Gui_fCountStr .= " "
-  Gui_eCountStr0 := ""
-  Loop, % StrLen(Config_maxItems * Config_feedCount)
-    Gui_eCountStr0 .= " "
-  Gui_eCountStr1 := ""
-  Loop, % StrLen(Config_maxItems)
-    Gui_eCountStr1 .= " "
-  StringTrimRight, Gui_eCountStr1, Gui_eCountStr1, 1
-}
 
 GUI_getElementSize() {
   Global Config_fontName, Config_fontSize
