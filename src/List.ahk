@@ -81,6 +81,31 @@ List_setDeleted(id, i, value) {
   %id%#%i%_delete := value
 }
 
+List_getFlaggedItem(id, i, j, d, flag) {
+  Local k
+
+  If (d > 0) {
+    Loop, % j - 1 {
+      k := j - A_Index
+      If List_itemHasFlag(id, i, k, flag)
+        Return, k
+    }
+  } Else If (d < 0) {
+    Loop, % List_getNumberOfItems(id, i) - j {
+      k := j + A_Index
+      If List_itemHasFlag(id, i, k, flag)
+        Return, k
+    }
+  } Else {
+    Loop, % List_getNumberOfItems(id, i) {
+      k := List_getNumberOfItems(id, i) - A_Index + 1
+      If List_itemHasFlag(id, i, k, flag)
+        Return, k
+    }
+  }
+  Return, 0
+}
+
 List_getItemField(id, i, j, field) {
   Global
   Return, %id%#%i%_e#%j%_%field%

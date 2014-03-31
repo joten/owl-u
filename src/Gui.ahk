@@ -210,31 +210,6 @@ GUI_getHtmlCharset(s) {
   Return, charset
 }
 
-GUI_getFlaggedItem(d, flag) {
-  Local i
-
-  If (d > 0) {
-    Loop, % Gui_aE - 1 {
-      i := Gui_aE - A_Index
-      If List_itemHasFlag("Feed", Gui_aF, i, flag)
-        Return, i
-    }
-  } Else If (d < 0) {
-    Loop, % List_getNumberOfItems("Feed", Gui_aF) - Gui_aE {
-      i := Gui_aE + A_Index
-      If List_itemHasFlag("Feed", Gui_aF, i, flag)
-        Return, i
-    }
-  } Else {
-    Loop, % List_getNumberOfItems("Feed", Gui_aF) {
-      i := List_getNumberOfItems("Feed", Gui_aF) - A_Index + 1
-      If List_itemHasFlag("Feed", Gui_aF, i, flag)
-        Return, i
-    }
-  }
-  Return, 0
-}
-
 GUI_getSelectedItem() {
   Global Gui_aE, GUI_Feed_#2
 
@@ -514,7 +489,7 @@ Gui_showUnreadEntry(d) {
 
   If Not (GUI_isHelpView() Or GUI_isListView() Or GUI_isItemView()) {
     If (List_getNumberOfUnseenItems("Feed", Gui_aF) > 0) {
-      i := GUI_getFlaggedItem(d, "N")
+      i := List_getFlaggedItem("Feed", Gui_aF, Gui_aE, d, "N")
       If (i > 0) {
         Gui_aE := i
         text := Config_feed#%Gui_aF%_title " [" List_getNumberOfItems("Feed", Gui_aF) "| " Gui_aE " ]: """ List_getItemField("Feed", Gui_aF, Gui_aE, "title") """"
