@@ -38,9 +38,15 @@ SetTitleMatchMode, fast
   Config_init()
   Gui_init()
   Gui_resize()
+  List_CAL_itemFields := "closed;deadline;description;flag;priority;schedule;tags;title;type"
+  StringSplit, List_CAL_itemField_#, List_CAL_itemFields, `;
   List_Feed_itemFields := "author;flag;link;summary;title;updated"
   StringSplit, List_Feed_itemField_#, List_Feed_itemFields, `;
   StringSplit, List_FeedN_itemField_#, List_Feed_itemFields, `;
+  Loop, % Config_CAL_#0 {
+    SB_SetText("Loading CAL (" A_Index "/" Config_CAL_#0 "): """ Config_CAL_#%A_Index%_title """ ...")
+    CAL_init(A_Index)
+  }
   Loop, % Config_feedCount {
     SB_SetText("Loading feed (" A_Index "/" Config_feedCount "): """ Config_feed#%A_Index%_title """ ...")
     Feed_init(A_Index)
@@ -61,7 +67,7 @@ Return      ;; End of the auto-execute section
 
 ;; Function & label definitions
 Main_init() {
-  Global Config_iniFilePath, Feed_cacheDir, Main_dataDir, Main_docDir
+  Global CAL_dir, Config_iniFilePath, Feed_cacheDir, Main_dataDir, Main_docDir
 
   Main_docDir := A_ScriptDir
   If (SubStr(A_ScriptDir, -3) = "\src")
@@ -84,6 +90,11 @@ Main_init() {
 }
 
 Main_cleanup:
+  SB_SetText("Saving CAL status ...")
+  Loop, % Config_CAL_#0 {
+    CAL_purgeDeleted(A_Index)
+    List_save("CAL_", A_Index)
+  }
   SB_SetText("Saving feed status ...")
   Loop, % Config_feedCount {
     Feed_purgeDeleted(A_Index)
@@ -284,6 +295,7 @@ Main_toggleUnreadMark() {
   }
 }
 
+#Include CAL.ahk
 #Include Config.ahk
 #Include Feed.ahk
 #Include Gui.ahk
