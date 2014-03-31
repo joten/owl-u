@@ -6,6 +6,14 @@
 `Config_browser=C:\Program Files\Internet Explorer\iexplore.exe`
 > The browser, which is used, when opening an article or a link list.
 
+`Config_CAL_priorities=A|B|C|X|Y|Z`
+> The available priorities for creating a new CAL item; a list with 'vertical
+bar' `|` separated values.
+
+`Config_CAL_tags=`
+> The available tags for creating a new CAL item; a list with 'vertical bar'
+`|` separated values.
+
 `Config_cssFilePath=<Main_dataDir>\styles.css`
 > The file path to the style sheet used for `HTML` files shown in the Internet
 Explorer control.
@@ -39,18 +47,18 @@ email clients are not supported).
 `Config_htmlTemplate=<!doctype html>\`n<html lang="en">\`n<head>\`n  <meta charset="<!-- charset -->">\`n  <link rel="stylesheet" href="./styles.css">\`n</head>\`n<body>\`n\`n<!-- body -->\`n</body>\`n</html>\`n`
 > The HTML template text with variables being replaced by owl-u.
 
-`Config_feed_xmlUrl=http://www.autohotkey.com/forum/rss.php`
+`Config_feed_xmlUrl=https://github.com/joten/owl-u/commits/master.atom`
 > The Url, from which to download the feed. It is also used for calculating
 cache ids.
 
-`Config_feed_title=AutoHotkey Community`
+`Config_feed_title=owl-u@GitHub`
 > The title of the feed, which is displayed in the feed list and title bar.
 
-`Config_feed_htmlUrl=http://www.autohotkey.com/forum/`
+`Config_feed_htmlUrl=https://github.com/joten/owl-u`
 > The URL, which is used, when referencing an article or opening the web site
 of the feed.
 
-`Config_feed_cacheId=www_autohotkey_com_forum_rss_php`
+`Config_feed_cacheId=`
 > The identifier for the locally cached XML file of the feed.
 
 `Config_feed_htmlSource=`

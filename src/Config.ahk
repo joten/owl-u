@@ -7,16 +7,18 @@
 Config_init() {
   Local i
 
-  Config_autoReload   := False
-  Config_browser      := "C:\Program Files\Internet Explorer\iexplore.exe"
-  Config_cssFilePath  := Main_dataDir "\styles.css"
-  Config_fontName     := "Lucida Console"
-  Config_fontSize     := 8
-  Config_maxItems     := 100
-  Config_muaCommand   := ""
-  Config_reloadTime   := 0
-  Config_windowHeight := 600
-  Config_windowWidth  := 800
+  Config_autoReload     := False
+  Config_browser        := "C:\Program Files\Internet Explorer\iexplore.exe"
+  Config_CAL_priorities := "A|B|C|X|Y|Z"
+  Config_CAL_tags       := ""
+  Config_cssFilePath    := Main_dataDir "\styles.css"
+  Config_fontName       := "Lucida Console"
+  Config_fontSize       := 8
+  Config_maxItems       := 100
+  Config_muaCommand     := ""
+  Config_reloadTime     := 0
+  Config_windowHeight   := 600
+  Config_windowWidth    := 800
   Config_htmlTemplate =
     (LTrim
       <!doctype html>`n<html lang="en">
@@ -36,6 +38,7 @@ Config_init() {
 
   i := Config_feedCount + 1
   Config_feed#%i%_title := "Summary of new entries"
+  StringSplit, Config_CAL_tag_#, Config_CAL_tags, |
 }
 
 Config_blankFeedMemory() {

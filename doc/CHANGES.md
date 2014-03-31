@@ -9,6 +9,9 @@
 ### 0.4.0
 
 * `~` `BackSpace::Gui_navigate("back")` -> `BackSpace::Gui_IE_navigate("back")`
+* `+` `Config_CAL_priorities`, the available priorities for creating a new CAL
+item
+* `+` `Config_CAL_tags`, the available tags for creating a new CAL item
 
 ### 0.3.0
 
