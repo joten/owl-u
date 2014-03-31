@@ -490,7 +490,7 @@ GUI_SB_getText() {
 GUI_setAbstractView() {
   Local dir, text
 
-  text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ List_getItemField("Feed", Gui_aF, Gui_aE, "title") """"
+  text := Config_feed#%Gui_aF%_title " [" List_getNumberOfItems("Feed", Gui_aF) "| " Gui_aE " ]: """ List_getItemField("Feed", Gui_aF, Gui_aE, "title") """"
   StringReplace, text, text, &, &&, All
   GuiControl, , Gui#1, % text
 
@@ -502,7 +502,7 @@ GUI_setAbstractView() {
 GUI_setEntryList() {
   Local text, title
 
-  text := SubStr(Gui_eCountStr1 List_getNumberOfItems("Feed", Gui_aF), -StrLen(Config_maxItems) + 1) "  " SubStr(Gui_eCountStr1 List_getNumberOfUnseenItems("Feed", Gui_aF), -StrLen(Config_maxItems) + 1) "  " Config_feed#%Gui_aF%_title
+  text := Config_feed#%Gui_aF%_title " [" List_getNumberOfItems("Feed", Gui_aF) "| " List_getNumberOfUnseenItems("Feed", Gui_aF) " unseen ]"
   StringReplace, text, text, &, &&, All
   GuiControl, , Gui#1, % text
 
@@ -536,7 +536,7 @@ GUI_setFeedList() {
   LV_Add("", i, List_getNumberOfUnseenItems("Feed", i), "", Config_feed#%i%_title)
   GuiControl, +Redraw, GUI_Feed_#1
   LV_ModifyCol(4, "AutoHdr")
-  GuiControl, , Gui#1, % SubStr(Gui_fCountStr Config_feedCount, -StrLen(Config_feedCount) + 1) "  [" SubStr(Gui_eCountStr0 u, -StrLen(Config_maxItems * Config_feedCount) + 1) "/" SubStr(Gui_eCountStr0 n, -StrLen(Config_maxItems * Config_feedCount) + 1) "]"
+  GuiControl, , Gui#1, % "Feed overview [" n "| " u " unseen ]"
 ;  LV_Modify(Gui_aF, "Focus Select")
 }
 
@@ -548,7 +548,7 @@ Gui_showUnreadEntry(d) {
       i := GUI_getFlaggedItem(d, "N")
       If (i > 0) {
         Gui_aE := i
-        text := Config_feed#%Gui_aF%_title " (" Gui_aE "/" List_getNumberOfItems("Feed", Gui_aF) "): """ List_getItemField("Feed", Gui_aF, Gui_aE, "title") """"
+        text := Config_feed#%Gui_aF%_title " [" List_getNumberOfItems("Feed", Gui_aF) "| " Gui_aE " ]: """ List_getItemField("Feed", Gui_aF, Gui_aE, "title") """"
         StringReplace, text, text, &, &&, All
         GuiControl, , Gui#1, % text
         Gui_navigate(0)
