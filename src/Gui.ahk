@@ -39,7 +39,6 @@ Gui_initFeed(i) {
   Global
 
   Gui_f#%i%_htmlSource := Config_feed#%i%_htmlSource
-  Gui_loadEntryList(i)
 }
 
 Gui_cleanup() {
@@ -359,19 +358,6 @@ GUI_isListView() {
 GUI_isSummaryView() {
   Global Gui_aF, Config_feedCount
   Return, (Gui_aF = Config_feedCount + 1)
-}
-
-Gui_loadEntryList(i) {
-  Local title
-
-  Gui_f#%i%_eLs := ""
-  Loop, % List_getNumberOfItems("Feed", i) {
-    title := List_getItemField("Feed", i, A_Index, "title")
-    StringReplace, title, title, |, ¦, All
-    Gui_f#%i%_eLs .= "|" SubStr(Gui_eCountStr1 A_Index, -StrLen(Config_maxItems) + 1) "  " Gui_eCountStr1 List_getItemField("Feed", i, A_Index, "flag") "  " title
-  }
-  If Not Gui_f#%i%_eLs
-    Gui_f#%i%_eLs := "|"
 }
 
 GUI_markEntry(f, e, flag) {

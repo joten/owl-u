@@ -48,7 +48,6 @@ SetTitleMatchMode, fast
   }
   SB_SetText("Loading summary of new entries ...")
   Feed_init(Config_feedCount + 1)
-  Gui_loadEntryList(Config_feedCount + 1)
   SB_SetText("")
   Suspend, Off
   If Config_autoReload {
@@ -174,7 +173,6 @@ Main_markFeedRead() {
 
   If GUI_isItemView() {
     GUI_getSelectedItem()
-
     Loop, % List_getNumberOfItems("Feed", Gui_aF)
       If List_itemHasFlag("Feed", Gui_aF, A_Index, "N") {
         List_setItemSeen("Feed", Gui_aF, A_Index)
@@ -184,11 +182,6 @@ Main_markFeedRead() {
           List_setItemSeen("Feed", f, e)
         }
       }
-    If GUI_isSummaryView()
-      Loop, % Config_feedCount
-        Gui_loadEntryList(A_Index)
-
-    Gui_loadEntryList(Gui_aF)
     GUI_setEntryList()
   }
 }
@@ -203,8 +196,7 @@ Main_reloadFeed() {
       Main_reloadFeeds()
     Else {
       SB_SetText("Reloading feed (" Gui_aF "/" Config_feedCount "): """ Config_feed#%Gui_aF%_title """ ...")
-      If Feed_reload(Gui_aF)
-        Gui_loadEntryList(Gui_aF)
+      Feed_reload(Gui_aF)
       SB_SetText("")
       Gui_navigate(0)
     }
@@ -225,7 +217,6 @@ Main_reloadFeeds(flag = 0) {
       SB_SetText("Reloading feed (" A_Index "/" Config_feedCount "): """ Config_feed#%A_Index%_title """ ...")
       If Not Config_feed#%A_Index%_singleReloadOnly
         If Feed_reload(A_Index) {
-          Gui_loadEntryList(A_Index)
           If GUI_isListView() Or (GUI_isItemView() And Gui_aF = A_Index)
             Gui_navigate(0)
         }
@@ -283,7 +274,6 @@ Main_toggleUnreadMark() {
     } Else
       Main_markEntryRead()
 
-    Gui_loadEntryList(Gui_aF)
     If GUI_isItemView()
       GUI_setEntryList()
   }
