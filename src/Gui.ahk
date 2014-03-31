@@ -345,11 +345,15 @@ Gui_navigate(d) {
     }
     If (GUI_isListView() And d > 0)
       GUI_toggleView(1, 2)
-    Else If (GUI_isItemView() And d > 0) Or ((GUI_isListView() Or GUI_isItemView()) And Gui_a + d = 0)
+    Else If (GUI_isListView() And Gui_a + d = 0)
+      GUI_toggleView(1, 3)
+    Else If (GUI_isItemView() And d > 0) Or (GUI_isItemView() And Gui_a + d = 0)
       GUI_toggleView(2, 3)
     Else If (GUI_isItemView() And d < 0)
       GUI_toggleView(2, 1)
-    Else If ((GUI_isAbstractView() Or GUI_isArticleView()) And (d = -1 Or d = -2)) Or (GUI_isHelpView() And (Gui_inA = 1 Or Gui_inA = 2))
+    Else If (GUI_isHelpView() And Gui_inA = 1)
+      GUI_toggleView(3, 1)
+    Else If ((GUI_isAbstractView() Or GUI_isArticleView()) And (d = -1 Or d = -2)) Or (GUI_isHelpView() And Gui_inA = 2)
       GUI_toggleView(3, 2)
     If GUI_isHelpView() {
       Gui_a := Gui_inA
