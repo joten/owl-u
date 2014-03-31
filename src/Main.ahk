@@ -223,6 +223,7 @@ Main_reloadFeeds(flag = 0) {
             Gui_navigate(0)
         }
     }
+    Feed_init(Config_feedCount + 1)
     GUI_updateView("Feed", Config_feedCount + 1)
     SB_SetText("")
     Suspend, Off
