@@ -129,7 +129,7 @@ GUI_createLoadingPage() {
 }
 
 GUI_createMainWindow(w, h) {
-  Global Config_fontName, Config_fontSize, Config_windowWidth, Main_docDir, NAME
+  Global Config_feedCount, Config_fontName, Config_fontSize, Config_windowWidth, Main_docDir, NAME
   Global Gui#1, Gui#2, Gui#3, Gui#4, Gui_a, Gui_barH, GUI_Feed_#1, GUI_Feed_#2, Gui_wndId
 
   Gui, 1: Default
@@ -138,30 +138,31 @@ GUI_createMainWindow(w, h) {
   Gui, +LastFound +0xCF0000 -0x80000000
   Gui, Font, s%Config_fontSize%, %Config_fontName%
   Gui_wndId := WinExist()
+  n := Config_feedCount + 1
 
   Gui, Add, Text, W%w% H%h% X4 Y0 vGui#1,
   If Not Gui_a {
 ;    Gui, Add, ListBox, +0x100 AltSubmit Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
-    Gui, Add, ListView, Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#1, #|Unseen|Total|Title
-    LV_ModifyCol(1, "Right")
-    LV_ModifyCol(2, "Right")
-    LV_ModifyCol(3, "Right")
-    Gui, Add, ListView, Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#2, #|Unseen|Title
-    LV_ModifyCol(1, "Right")
-    LV_ModifyCol(2, "Right")
+    Gui, Add, ListView, Disabled Hidden Count%n% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#1, #|Unseen|Total|Title
+    LV_ModifyCol(1, "Integer Right")
+    LV_ModifyCol(2, "Integer Right")
+    LV_ModifyCol(3, "Integer Right")
+    Gui, Add, ListView, Disabled Hidden Count%Config_maxItems% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#2, #|Flag|Title
+    LV_ModifyCol(1, "Integer Right")
+    LV_ModifyCol(2, "Integer Right")
 
     Gui Add, ActiveX, x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
     Gui#3.silent := True      ;; Disable annoying script errors from the page
     Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
   } Else {
 ;    Gui, Add, ListBox, +0x100 AltSubmit W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGui#2, |
-    Gui, Add, ListView, W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#1, #|Unseen|Total|Title
-    LV_ModifyCol(1, "Right")
-    LV_ModifyCol(2, "Right")
-    LV_ModifyCol(3, "Right")
-    Gui, Add, ListView, Disabled Hidden W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#2, #|Unseen|Title
-    LV_ModifyCol(1, "Right")
-    LV_ModifyCol(2, "Right")
+    Gui, Add, ListView, Count%n% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#1, #|Unseen|Total|Title
+    LV_ModifyCol(1, "Integer Right")
+    LV_ModifyCol(2, "Integer Right")
+    LV_ModifyCol(3, "Integer Right")
+    Gui, Add, ListView, Disabled Hidden Count%Config_maxItems% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#2, #|Flag|Title
+    LV_ModifyCol(1, "Integer Right")
+    LV_ModifyCol(2, "Integer Right")
 
     Gui Add, ActiveX, Disabled Hidden x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
     Gui#3.silent := True      ;; Disable annoying script errors from the page
@@ -506,11 +507,14 @@ GUI_setEntryList() {
   GuiControl, , Gui#1, % text
 
   Gui, ListView, GUI_Feed_#2
+  GuiControl, -Redraw, GUI_Feed_#2
   LV_Delete()
   Loop, % List_getNumberOfItems("Feed", Gui_aF) {
     title := List_getItemField("Feed", Gui_aF, A_Index, "title")
     LV_Add("", A_Index, List_getItemField("Feed", Gui_aF, A_Index, "flag"), title)
   }
+  GuiControl, +Redraw, GUI_Feed_#2
+  LV_ModifyCol(3, "AutoHdr")
   LV_Modify(Gui_aE, "Focus Select")
 }
 
@@ -518,6 +522,7 @@ GUI_setFeedList() {
   Local i, n = 0, u = 0
 
   Gui, ListView, GUI_Feed_#1
+  GuiControl, -Redraw, GUI_Feed_#1
   LV_Delete()
   Loop, % Config_feedCount {
     n += List_getNumberOfItems("Feed", A_Index)
@@ -529,6 +534,8 @@ GUI_setFeedList() {
   Feed_init(i)
   SB_SetText("")
   LV_Add("", i, List_getNumberOfUnseenItems("Feed", i), "", Config_feed#%i%_title)
+  GuiControl, +Redraw, GUI_Feed_#1
+  LV_ModifyCol(4, "AutoHdr")
   GuiControl, , Gui#1, % SubStr(Gui_fCountStr Config_feedCount, -StrLen(Config_feedCount) + 1) "  [" SubStr(Gui_eCountStr0 u, -StrLen(Config_maxItems * Config_feedCount) + 1) "/" SubStr(Gui_eCountStr0 n, -StrLen(Config_maxItems * Config_feedCount) + 1) "]"
 ;  LV_Modify(Gui_aF, "Focus Select")
 }
