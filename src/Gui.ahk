@@ -32,7 +32,6 @@ Gui_init() {
   GUI_createLoadingPage()
   GUI_getElementSize()
   GUI_createMainWindow(Config_windowWidth - 4, Config_windowHeight - Gui_statusBarH - Gui_statusBarH)
-  GUI_CAL_createInputWindow()
 }
 
 Gui_initFeed(i) {
@@ -41,13 +40,18 @@ Gui_initFeed(i) {
   Gui_f#%i%_htmlSource := Config_feed#%i%_htmlSource
 }
 
+GUI_CAL_Cancel:
+GUI_CAL_Escape:
+  Gui, 2: Destroy
+Return
+
 GUI_CAL_createInputWindow() {
   Local w, x
 
   Gui, 2: Default
   IfWinExist, %NAME% -- CAL
     Gui, Destroy
-  Gui, +LastFound +0xCF0000
+  Gui, +LabelGUI_CAL_ +LastFound +0xCF0000
   Gui, Font, s%Config_fontSize%, %Config_fontName%
   Gui_CAL_wndId := WinExist()
   w := (GUI_dateTimeW - Config_fontSize) / 2
@@ -62,11 +66,15 @@ GUI_CAL_createInputWindow() {
   Loop, % Config_CAL_tag_#0
     Gui, Add, Checkbox, vGUI_CAL_tag_#%A_Index%, % Config_CAL_tag_#%A_Index%
   Gui, Add, Edit, R2 W%GUI_dateTimeW% vGUI_CAL_description,
-  Gui, Add, StatusBar, vGUI_CAL_SB,
+  Gui, Add, Button, Default W%w% gGUI_CAL_OK, OK
+  Gui, Add, Button, W%w% xp+%x% gGUI_CAL_Cancel, Cancel
 
   Gui, Show, AutoSize, %NAME% -- CAL
   Gui, 1: Default
 }
+
+GUI_CAL_OK:
+Return
 
 Gui_cleanup() {
   Gui, Destroy
