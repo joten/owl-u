@@ -574,3 +574,11 @@ GUI_toggleView(a, b) {
     GuiControl, Focus, GUI_Feed_#%b%
   }
 }
+
+GUI_updateView(id, i, j = 0) {
+  If (id = "Feed" And j = 0) {
+    Gui, ListView, GUI_Feed_#1
+    LV_Modify(i, "Col2", List_getNumberOfUnseenItems(id, i))
+    LV_Modify(i, "Col3", List_getNumberOfItems(id, i))
+  }
+}

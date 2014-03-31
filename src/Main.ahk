@@ -198,7 +198,7 @@ Main_reloadFeed() {
       SB_SetText("Reloading feed (" Gui_aF "/" Config_feedCount "): """ Config_feed#%Gui_aF%_title """ ...")
       Feed_reload(Gui_aF)
       SB_SetText("")
-      Gui_navigate(0)
+      GUI_updateView("Feed", Gui_aF)
     }
     Suspend, Off
   }
@@ -217,13 +217,13 @@ Main_reloadFeeds(flag = 0) {
       SB_SetText("Reloading feed (" A_Index "/" Config_feedCount "): """ Config_feed#%A_Index%_title """ ...")
       If Not Config_feed#%A_Index%_singleReloadOnly
         If Feed_reload(A_Index) {
-          If GUI_isListView() Or (GUI_isItemView() And Gui_aF = A_Index)
+          If GUI_isListView()
+            GUI_updateView("Feed", A_Index)
+          Else If (GUI_isItemView() And Gui_aF = A_Index)
             Gui_navigate(0)
         }
     }
     SB_SetText("")
-    If GUI_isListView()
-      Gui_navigate(0)
     Suspend, Off
   }
 }
