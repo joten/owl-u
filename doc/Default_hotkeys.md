@@ -87,5 +87,5 @@ available in the article view).
 `^w::Config_writeIni()`
 > Write the configuration file (`Config_iniFilePath`).
 
-`^!c::GUI_CAL_createInputWindow()`
-> Open a window for creating a new CAL item.
+`^!c::GUI_CAL_showInputWindow()`
+> Show the window for creating a new CAL item.

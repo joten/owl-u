@@ -6,11 +6,11 @@
 `Config_browser=C:\Program Files\Internet Explorer\iexplore.exe`
 > The browser, which is used, when opening an article or a link list.
 
-`Config_CAL_priorities=A|B|C|X|Y|Z`
+`Config_calPriorities=A|B|C|X|Y|Z`
 > The available priorities for creating a new CAL item; a list with 'vertical
 bar' `|` separated values.
 
-`Config_CAL_tags=`
+`Config_calTags=`
 > The available tags for creating a new CAL item; a list with 'vertical bar'
 `|` separated values.
 

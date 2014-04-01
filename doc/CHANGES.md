@@ -9,10 +9,10 @@
 ### 0.4.0
 
 * `~` `BackSpace::Gui_navigate("back")` -> `BackSpace::Gui_IE_navigate("back")`
-* `+` `Config_CAL_priorities`, the available priorities for creating a new CAL
+* `+` `Config_calPriorities`, the available priorities for creating a new CAL
 item
-* `+` `Config_CAL_tags`, the available tags for creating a new CAL item
-* `+` `^!c::GUI_CAL_createInputWindow()`, opening the window for creating a new
+* `+` `Config_calTags`, the available tags for creating a new CAL item
+* `+` `^!c::GUI_CAL_showInputWindow()`, showing the window for creating a new
 CAL item
 * `+` `Config_CAL_*`, defining a calendar (list)
 

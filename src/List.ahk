@@ -26,7 +26,7 @@ List_init(id, i, filename, title) {
   %id%#%i%_delete := ";"
 }
 
-List_addItem(id, i, f1, f2, f3, f4, f5, f6) {
+List_addItem(id, i, f1 = "", f2 = "", f3 = "", f4 = "", f5 = "", f6 = "", f7 = "", f8 = "", f9 = "") {
   Local field, j
 
   %id%#%i%_eCount += 1
