@@ -32,12 +32,43 @@ Gui_init() {
   GUI_createLoadingPage()
   GUI_getElementSize()
   GUI_createMainWindow(Config_windowWidth - 4, Config_windowHeight - Gui_statusBarH - Gui_statusBarH)
+<<<<<<< HEAD
+=======
+  GUI_CAL_createInputWindow()
+>>>>>>> 1c89d69e2f9a03bd026be77e835d5a1796e6ab36
 }
 
 Gui_initFeed(i) {
   Global
 
   Gui_f#%i%_htmlSource := Config_feed#%i%_htmlSource
+}
+
+GUI_CAL_createInputWindow() {
+  Local w, x
+
+  Gui, 2: Default
+  IfWinExist, %NAME% -- CAL
+    Gui, Destroy
+  Gui, +LastFound +0xCF0000
+  Gui, Font, s%Config_fontSize%, %Config_fontName%
+  Gui_CAL_wndId := WinExist()
+  w := (GUI_dateTimeW - Config_fontSize) / 2
+  x := w + Config_fontSize
+
+  Gui, Add, DropDownList, Choose1 W%w% vGUI_CAL_type, APPT|TODO|DONE|CXLD
+  Gui, Add, DropDownList, Choose1 Sort W%w% xp+%x% vGUI_CAL_priority, % Config_CAL_priorities
+  Gui, Add, Edit, W%GUI_dateTimeW% xm0 vGUI_CAL_title,
+  Gui, Add, DateTime, Right vGUI_CAL_schedule, yyyy-MM-dd
+  Gui, Add, DateTime, ChooseNone Right 2 vGUI_CAL_deadline, yyyy-MM-dd
+  Gui, Add, DateTime, ChooseNone Right 2 vGUI_CAL_closed, yyyy-MM-dd
+  Loop, % Config_CAL_tag_#0
+    Gui, Add, Checkbox, vGUI_CAL_tag_#%A_Index%, % Config_CAL_tag_#%A_Index%
+  Gui, Add, Edit, R2 W%GUI_dateTimeW% vGUI_CAL_description,
+  Gui, Add, StatusBar, vGUI_CAL_SB,
+
+  Gui, Show, AutoSize, %NAME% -- CAL
+  Gui, 1: Default
 }
 
 Gui_cleanup() {
