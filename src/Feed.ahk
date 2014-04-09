@@ -42,7 +42,7 @@ Feed_initSummary(i) {
 }
 
 Feed_decodeHtmlChar(text) {
-  If RegExMatch(text, "&[a-zA-Z]+;") {
+  If RegExMatch(text, "&[a-zA-Z#0-9]+;") {
     StringCaseSense, On
     StringReplace, text, text, &Auml`;, Ä, All
     StringReplace, text, text, &Ouml`;, Ö, All
@@ -76,6 +76,9 @@ Feed_decodeHtmlChar(text) {
       StringTrimLeft, i, i, 1
       StringReplace, text, text, % "&#" i ";", % Chr(A_Index - 1), All
     }
+    StringReplace, text, text, &#8211`;, -, All
+    StringReplace, text, text, &#8216`;, ', All
+    StringReplace, text, text, &#8217`;, ', All
     StringReplace, text, text, &amp`;, &, All
   }
 
