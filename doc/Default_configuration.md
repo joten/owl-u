@@ -14,12 +14,6 @@ bar' `|` separated values.
 > The available tags for creating a new CAL item; a list with 'vertical bar'
 `|` separated values.
 
-`Config_CAL_iniFile=<CAL_dir>\private.ini`
-> The filename of the calendar, used for initializing the associated list.
-
-`Config_CAL_title=private`
-> The title of the calendar, used for display.
-
 `Config_cssFilePath=<Main_dataDir>\styles.css`
 > The file path to the style sheet used for `HTML` files shown in the Internet
 Explorer control.

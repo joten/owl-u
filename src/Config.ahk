@@ -31,11 +31,8 @@ Config_init() {
     Config_feed#1_title   := "owl-u@GitHub"
     Config_feed#1_htmlUrl := "https://github.com/joten/owl-u"
     Config_feed#1_singleReloadOnly := True
-    Config_feedCount := 1
 
-    Config_CAL_#1_iniFile := CAL_dir "\private.ini"
-    Config_CAL_#1_title   := "private"
-    Config_CAL_#0 := 1
+    Config_feedCount := 1
   } Else
     Config_readIni()
 
@@ -138,12 +135,7 @@ Config_readIni() {
     If (SubStr(A_LoopReadLine, 1, 7) = "Config_") {
       var := SubStr(A_LoopReadLine, 1, InStr(A_LoopReadLine, "=") - 1)
       val := SubStr(A_LoopReadLine, InStr(A_LoopReadLine, "=") + 1)
-      If (SubStr(var, 1, 11) = "Config_CAL_") {
-        var := SubStr(var, 12)
-        If (var = "iniFile")
-          Config_CAL_#0 += 1
-        Config_CAL_#%Config_CAL_#0%_%var% := val
-      } Else If (SubStr(var, 1, 12) = "Config_feed_") {
+      If (SubStr(var, 1, 12) = "Config_feed_") {
         var := SubStr(var, 13)
         If (var = "xmlUrl")
           Config_feedCount += 1
@@ -204,11 +196,6 @@ Config_writeIni() {
 
   text .= "Config_windowHeight=" Config_windowHeight "`n"
   text .= "Config_windowWidth=" Config_windowWidth "`n"
-
-  Loop, % Config_CAL_#0 {
-    text .= "`nConfig_CAL_iniFile=" Config_CAL_#%A_Index%_iniFile "`n"
-    text .= "Config_CAL_title=" Config_CAL_#%A_Index%_title "`n"
-  }
 
   Loop, % Config_feedCount {
     i := A_Index

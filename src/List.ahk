@@ -238,7 +238,7 @@ List_save(id, i) {
     text .= "`n"
     Loop, % List_%id%_itemField_#0 {
       field := List_%id%_itemField_#%A_Index%
-      If (field = "summary" Or field = "description") {
+      If (field = "summary") {
         StringReplace, %id%#%i%_e#%j%_%field%, %id%#%i%_e#%j%_%field%, `r`n, <br/>, All
         StringReplace, %id%#%i%_e#%j%_%field%, %id%#%i%_e#%j%_%field%, `n, <br/>, All
         StringReplace, %id%#%i%_e#%j%_%field%, %id%#%i%_e#%j%_%field%, `r, <br/>, All

@@ -14,7 +14,6 @@ item
 * `+` `Config_CAL_tags`, the available tags for creating a new CAL item
 * `+` `^!c::GUI_CAL_createInputWindow()`, opening the window for creating a new
 CAL item
-* `+` `Config_CAL_*`, defining a calendar (list)
 
 ### 0.3.0
 
