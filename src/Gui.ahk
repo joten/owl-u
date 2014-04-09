@@ -31,7 +31,7 @@ Gui_init() {
 
   GUI_createLoadingPage()
   GUI_getElementSize()
-  GUI_createMainWindow(Config_windowWidth - 4, Config_windowHeight - Gui_barH - Gui_statusBarH)
+  GUI_createMainWindow(Config_windowWidth - 4, Config_windowHeight - Gui_statusBarH - Gui_statusBarH)
 }
 
 Gui_initFeed(i) {
@@ -128,7 +128,7 @@ GUI_createLoadingPage() {
 
 GUI_createMainWindow(w, h) {
   Global Config_feedCount, Config_fontName, Config_fontSize, Config_windowWidth, Main_docDir, NAME
-  Global Gui#1, Gui#2, Gui#3, Gui#4, Gui_a, Gui_barH, GUI_Feed_#1, GUI_Feed_#2, Gui_wndId
+  Global Gui#1, Gui#2, Gui#3, Gui#4, Gui_a, Gui_barH, GUI_Feed_#1, GUI_Feed_#2, Gui_statusBarH, Gui_wndId
 
   Gui, 1: Default
   IfWinExist, %NAME%
@@ -137,16 +137,17 @@ GUI_createMainWindow(w, h) {
   Gui, Font, s%Config_fontSize%, %Config_fontName%
   Gui_wndId := WinExist()
   n := Config_feedCount + 1
+  offset := (Gui_statusBarH - Gui_barH) / 2
 
-  Gui, Add, Text, W%w% H%h% X4 Y0 vGui#1,
-  Gui, Add, ListView, Count%n% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#1, #|Unseen|Total|Title
+  Gui, Add, Text, W%w% H%Gui_barH% X2 Y%offset% vGui#1,
+  Gui, Add, ListView, Count%n% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_statusBarH% vGUI_Feed_#1, #|Unseen|Total|Title
   LV_ModifyCol(1, "Integer Right")
   LV_ModifyCol(2, "Integer Right")
   LV_ModifyCol(3, "Integer Right")
-  Gui, Add, ListView, Disabled Hidden Count%Config_maxItems% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_barH% vGUI_Feed_#2, #|Flag|Title
+  Gui, Add, ListView, Disabled Hidden Count%Config_maxItems% -Multi W%Config_windowWidth% H%h% X0 Y%Gui_statusBarH% vGUI_Feed_#2, #|Flag|Title
   LV_ModifyCol(1, "Integer Right")
   LV_ModifyCol(2, "Integer Right")
-  Gui Add, ActiveX, Disabled Hidden x0 y%Gui_barH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
+  Gui Add, ActiveX, Disabled Hidden x0 y%Gui_statusBarH% w%Config_windowWidth% h%h% vGui#3, Shell.Explorer
   Gui#3.silent := True      ;; Disable annoying script errors from the page
   Gui#3.Navigate("file:///" Main_docDir "/Quick_help.htm")
   If GUI_isHelpView()
@@ -172,7 +173,7 @@ Return
 
 GUI_getElementSize() {
   Global Config_fontName, Config_fontSize
-  Global Gui_bar, Gui_barH, Gui_statusBar, Gui_statusBarH
+  Global Gui_bar, Gui_barH, GUI_dateTime, GUI_dateTimeW, Gui_statusBar, Gui_statusBarH
 
   wndTitle := "owl-u_GUI_99"
   Gui, 99: Default
@@ -181,6 +182,8 @@ GUI_getElementSize() {
   GuiControlGet, Gui_bar, Pos
   Gui, Add, StatusBar, x0 y0 vGui_statusBar, |
   GuiControlGet, Gui_statusBar, Pos
+  Gui, Add, DateTime, Right 2 vGUI_dateTime, yyyy-MM-dd
+  GuiControlGet, GUI_dateTime, Pos
   Gui, Destroy
   Gui, 1: Default
 }
@@ -405,13 +408,14 @@ Gui_resize(w = 0, h = 0) {
     h += 1
     WinMove, ahk_id %Gui_wndId%, , x, y, w, h
   } Else {
-    h -= Gui_barH + Gui_statusBarH
-    GuiControl, Move, Gui#2, X0 y%Gui_barH% W%w% H%h%
-    GuiControl, Move, GUI_Feed_#1, X0 y%Gui_barH% W%w% H%h%
-    GuiControl, Move, GUI_Feed_#2, X0 y%Gui_barH% W%w% H%h%
-    GuiControl, Move, Gui#3, X0 y%Gui_barH% W%w% H%h%
+    h -= Gui_statusBarH + Gui_statusBarH
+    GuiControl, Move, Gui#2, X0 y%Gui_statusBarH% W%w% H%h%
+    GuiControl, Move, GUI_Feed_#1, X0 y%Gui_statusBarH% W%w% H%h%
+    GuiControl, Move, GUI_Feed_#2, X0 y%Gui_statusBarH% W%w% H%h%
+    GuiControl, Move, Gui#3, X0 y%Gui_statusBarH% W%w% H%h%
+    offset := (Gui_statusBarH - Gui_barH) / 2
     w -= 4
-    GuiControl, Move, Gui#1, X4 Y0 W%w% H%Gui_barH%
+    GuiControl, Move, Gui#1, X2 Y%offset% W%w% H%Gui_barH%
   }
 }
 
