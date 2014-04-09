@@ -244,5 +244,4 @@ Config_writeIni() {
   ^r::Reload
   ^u::Gui_toggleSourceView()
   ^w::Config_writeIni()
-  ^!c::GUI_CAL_createInputWindow()
 }

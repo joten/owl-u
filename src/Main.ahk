@@ -76,9 +76,6 @@ Main_init() {
 
   Config_iniFilePath := Main_dataDir "\Config.ini"
 
-  CAL_dir := Main_dataDir "\CAL"
-  Main_makeDir(CAL_dir)
-
   Feed_cacheDir := Main_dataDir "\cache"
   Main_makeDir(Feed_cacheDir)
 }
