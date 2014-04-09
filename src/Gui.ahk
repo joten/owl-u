@@ -32,7 +32,6 @@ Gui_init() {
   GUI_createLoadingPage()
   GUI_getElementSize()
   GUI_createMainWindow(Config_windowWidth - 4, Config_windowHeight - Gui_statusBarH - Gui_statusBarH)
-  GUI_CAL_createInputWindow()
 }
 
 Gui_initFeed(i) {
@@ -43,11 +42,11 @@ Gui_initFeed(i) {
 
 GUI_CAL_Cancel:
 GUI_CAL_Escape:
-  Gui, 2: Cancel
+  Gui, 2: Destroy
 Return
 
 GUI_CAL_createInputWindow() {
-  Local i, w, x
+  Local w, x
 
   Gui, 2: Default
   IfWinExist, %NAME% -- CAL
@@ -58,45 +57,24 @@ GUI_CAL_createInputWindow() {
   w := (GUI_dateTimeW - Config_fontSize) / 2
   x := w + Config_fontSize
 
-  Gui, Add, Radio, Group Checked vGUI_CAL_index, % Config_CAL_#1_title
-  Loop, % Config_CAL_#0 - 1 {
-    i := A_Index + 1
-    Gui, Add, Radio, Group vGUI_CAL_index, % Config_CAL_#%i%_title
-  }
   Gui, Add, DropDownList, Choose1 W%w% vGUI_CAL_type, APPT|TODO|DONE|CXLD
-  Gui, Add, DropDownList, Choose1 Sort W%w% xp+%x% vGUI_CAL_priority, % Config_calPriorities
+  Gui, Add, DropDownList, Choose1 Sort W%w% xp+%x% vGUI_CAL_priority, % Config_CAL_priorities
   Gui, Add, Edit, W%GUI_dateTimeW% xm0 vGUI_CAL_title,
   Gui, Add, DateTime, Right vGUI_CAL_schedule, yyyy-MM-dd
   Gui, Add, DateTime, ChooseNone Right 2 vGUI_CAL_deadline, yyyy-MM-dd
   Gui, Add, DateTime, ChooseNone Right 2 vGUI_CAL_closed, yyyy-MM-dd
-  Loop, % Config_calTag_#0
-    Gui, Add, Checkbox, vGUI_calTag_#%A_Index%, % Config_calTag_#%A_Index%
+  Loop, % Config_CAL_tag_#0
+    Gui, Add, Checkbox, vGUI_CAL_tag_#%A_Index%, % Config_CAL_tag_#%A_Index%
   Gui, Add, Edit, R2 W%GUI_dateTimeW% vGUI_CAL_description,
   Gui, Add, Button, Default W%w% gGUI_CAL_OK, OK
   Gui, Add, Button, W%w% xp+%x% gGUI_CAL_Cancel, Cancel
 
-  Gui, Show, AutoSize Hide, %NAME% -- CAL
+  Gui, Show, AutoSize, %NAME% -- CAL
   Gui, 1: Default
 }
 
 GUI_CAL_OK:
-  Gui, 2: Submit
-  GUI_CAL_submit()
 Return
-
-GUI_CAL_showInputWindow() {
-  Gui, 2: Show
-}
-
-GUI_CAL_submit() {
-  Local tags
-
-  Loop, % Config_calTag_#0
-    If GUI_CAL_tag_#%A_Index%
-      tags .= Config_calTag_#%A_Index% ";"
-  StringTrimRight, tags, tags, 1
-  List_addItem("CAL_", GUI_CAL_index, GUI_CAL_closed, GUI_CAL_deadline, GUI_CAL_description, "", GUI_CAL_priority, GUI_CAL_schedule, tags, GUI_CAL_title, GUI_CAL_type)
-}
 
 Gui_cleanup() {
   Gui, Destroy
